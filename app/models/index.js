@@ -18,18 +18,15 @@ db.sequelize = sequelize;
 
 // Models
 db.User = require("./user.model.js")(sequelize, Sequelize);
-db.Resume = require("./resume.model.js")(sequelize, Sequelize);
 db.Session = require("./session.model.js")(sequelize, Sequelize);
-db.Education = require("./education.model.js")(sequelize, Sequelize);
-db.Skill = require("./skill.model.js")(sequelize, Sequelize);
-db.PersonalLink = require("./personalLink.model.js")(sequelize, Sequelize);
+db.Admin = require("./admin.model.js")(sequelize, Sequelize);
+db.Award = require("./award.model.js")(sequelize, Sequelize);
+db.Badge = require("./badge.model.js")(sequelize, Sequelize);
 db.Experience = require("./experience.model.js")(sequelize, Sequelize);
-db.Project = require("./project.model.js")(sequelize, Sequelize);
-db.Interest = require("./interest.model.js")(sequelize, Sequelize);
-db.AwardCertification = require("./awardCertification.model.js")(sequelize, Sequelize);
-db.ContactInfo =require("./contactInfo.model.js")(sequelize, Sequelize);
-db.Comment = require("./comment.model.js")(sequelize, Sequelize);
-//db.Request = require("./request.model.js")(sequelize, Sequelize);
+db.FlightPlan = require("./flightplan.model.js")(sequelize, Sequelize);
+db.Task = require("./task.model.js")(sequelize, Sequelize);
+db.Student = require("./student.model.js")(sequelize, Sequelize);
+db.Event = require("./event.model.js")(sequelize, Sequelize);
 
 // Associations
 
@@ -61,8 +58,8 @@ db.Award.belongsToMany(db.Student, { through: "studentawards", as: "student", fo
 db.Badge.belongsToMany(db.Task, { through: "taskbadge", as: "task", foreignKey: "id" });
 db.Task.belongsToMany(db.Badge, { through: "taskbadge", as: "badge", foreignKey: "id" });
 
-db.Student.hasMany(db.Strength, { as: "strength", foreignKey: "id" });
-db.Strength.belongsTo(db.Student, { as: "stdudent", foreignKey: "id" });
+// db.Student.hasMany(db.Strength, { as: "strength", foreignKey: "id" });
+// db.Strength.belongsTo(db.Student, { as: "stdudent", foreignKey: "id" });
 
 // FlightPlan and Student (One-to-Many)
 db.FlightPlan.hasMany(db.Student, { as: db.Student.fname, foreignKey: "id", onDelete: "CASCADE" });
@@ -75,14 +72,14 @@ db.Admin.hasMany(db.Event, { as: db.Event.name, foreignKey: "id", onDelete: "CAS
 db.Event.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
 
 // admin - studentExperiences (maybe change from as TO through)
-db.Admin.hasMany(db.StudentExperiences, { as: db.StudentExperiences.name, foreignKey: "id", onDelete: "CASCADE" });
-db.StudentExperiences.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
+// db.Admin.hasMany(db.StudentExperiences, { as: db.StudentExperiences.name, foreignKey: "id", onDelete: "CASCADE" });
+// db.StudentExperiences.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
 
-db.Admin.hasMany(db.StudentAwards, { as: db.StudentAwards.name, foreignKey: "id", onDelete: "CASCADE" });
-db.StudentAwards.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
+// db.Admin.hasMany(db.StudentAwards, { as: db.StudentAwards.name, foreignKey: "id", onDelete: "CASCADE" });
+// db.StudentAwards.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
 
-db.Admin.hasMany(db.StudentTasks, { as: db.StudentTasks.name, foreignKey: "id", onDelete: "CASCADE" });
-db.StudentTasks.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
+// db.Admin.hasMany(db.StudentTasks, { as: db.StudentTasks.name, foreignKey: "id", onDelete: "CASCADE" });
+// db.StudentTasks.belongsTo(db.Admin, { as: db.Admin.name, foreignKey: "id", onDelete: "CASCADE" });
 
 
 module.exports = db;
