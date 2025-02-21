@@ -1,12 +1,12 @@
 {
-  "name": "EagleFlightPlan-backend",
+  "name": "flight-plan-backend",
   "version": "1.0.0",
-  "description": "EagleFlightPlan Node.js with Rest API",
+  "description": "flight-plan Node.js with Rest API",
   "main": "server.js",
   "scripts": {
     "test": "jest --",
     "start": "node server.js",
-    "bundle": "mkdir deploy && cp -r app server.js package.json package-lock.json EagleFlightPlan-backend.service .env deploy"
+    "bundle": "mkdir deploy && cp -r app server.js package.json package-lock.json flight-plan-t9-backend.service .env deploy"
   },
   "keywords": [
     "node.js",
