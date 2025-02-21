@@ -56,6 +56,6 @@ jobs:
             cd nodeapps/flight-plan-backend
             npm install
             sudo systemctl stop flight-plan-backend
-            sudo cp flight-plan-backend.service /lib/systemd/system/flight-plan-backend.service
+            sudo cp flight-plan-t9-backend.service /lib/systemd/system/flight-plan-t9-backend.service
             sudo systemctl daemon-reload
             sudo systemctl start flight-plan-backend
