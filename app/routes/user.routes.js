@@ -21,5 +21,5 @@ module.exports = (app) => {
   // Delete all User
   router.delete("/", [authenticate], user.deleteAll);
 
-  app.use("/EaglesFlightPlan/user", router);
+  app.use("/EagleFlightPlan/user", router);
 };
