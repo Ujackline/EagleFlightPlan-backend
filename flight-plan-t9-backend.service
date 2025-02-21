@@ -1,5 +1,5 @@
 [Unit]
-Description=NodeJS EagleFlightPlan App
+Description=NodeJS flight-plan App
 After=network.target
  
 [Service]
