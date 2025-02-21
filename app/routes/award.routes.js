@@ -21,6 +21,6 @@ module.exports = (app) => {
     // Delete all awards
     router.delete("/", [authenticate], award.deleteAll);
   
-    app.use("/EagleFlightPlan/award", router);
+    app.use("/flight-plan-t9/award", router);
   };
   

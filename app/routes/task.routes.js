@@ -21,6 +21,6 @@ module.exports = (app) => {
     // Delete all task
     router.delete("/", [authenticate], task.deleteAll);
   
-    app.use("/EagleFlightPlan/task", router);
+    app.use("/flight-plan-t9/task", router);
   };
   
