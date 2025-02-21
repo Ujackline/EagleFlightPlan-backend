@@ -41,7 +41,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           ARGS: "-rltgoDzvO --delete"
           SOURCE: "deploy/"
-          REMOTE_HOST: "EaglesFlightPlan.eaglesoftwareteam.com"
+          REMOTE_HOST: "EagleFlightPlan.eaglesoftwareteam.com"
           REMOTE_USER: ubuntu
           TARGET: "nodeapps/EagleFlightPlan-backend"
       - name: Execute SSH commmands on remote server
@@ -49,13 +49,13 @@ jobs:
         env:
           NAME: "Root"
         with:
-          hosts: "ubuntu@EaglesFlightPlan.eaglesoftwareteam.com"
+          hosts: "ubuntu@EagleFlightPlan.eaglesoftwareteam.com"
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
           debug: false
           command: |
-            cd nodeapps/EaglesFlightPlan-backend
+            cd nodeapps/EagleFlightPlan-backend
             npm install
-            sudo systemctl stop EaglesFlightPlan-backend
-            sudo cp EaglesFlightPlan-backend.service /lib/systemd/system/EaglesFlightPlan-backend.service
+            sudo systemctl stop EagleFlightPlan-backend
+            sudo cp EagleFlightPlan-backend.service /lib/systemd/system/EagleFlightPlan-backend.service
             sudo systemctl daemon-reload
-            sudo systemctl start EaglesFlightPlan-backend
+            sudo systemctl start EagleFlightPlan-backend
