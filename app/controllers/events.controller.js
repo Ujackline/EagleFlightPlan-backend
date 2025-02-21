@@ -10,7 +10,7 @@ exports.create = (req, res) => {
     return res.status(400).send({ message: "Event name and user ID are required!" });
   }
 
-  // Create a Event object
+  // Create an Event object
   const event = {
     eventName: req.body.eventName,
     id: req.body.id,
