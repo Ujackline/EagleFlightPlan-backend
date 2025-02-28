@@ -41,7 +41,7 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Events for a specific User
-exports.findAllForUser = (req, res) => {
+exports.findAll = (req, res) => {
   const id = req.params.id;
   Event.findAll({ where: { id: id} })
     .then(data => res.send(data))

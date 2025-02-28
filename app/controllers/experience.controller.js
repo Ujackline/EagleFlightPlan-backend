@@ -52,16 +52,16 @@ exports.findOne = (req, res) => {
     );
 };
 
-// **4. Retrieve Experiences by Category**
-exports.findByCategory = (req, res) => {
-  const category = req.params.category;
+// // **4. Retrieve Experiences by Category**
+// exports.findByCategory = (req, res) => {
+//   const category = req.params.category;
 
-  Experience.findAll({ where: { Category: category } })
-    .then((data) => res.send(data))
-    .catch((err) =>
-      res.status(500).send({ message: "Error retrieving Experiences for Category=" + category })
-    );
-};
+//   Experience.findAll({ where: { Category: category } })
+//     .then((data) => res.send(data))
+//     .catch((err) =>
+//       res.status(500).send({ message: "Error retrieving Experiences for Category=" + category })
+//     );
+// };
 
 // **5. Update an Experience**
 exports.update = (req, res) => {
