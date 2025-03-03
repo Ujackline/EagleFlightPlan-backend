@@ -1,4 +1,4 @@
-const db = require(models); // importing the database in order to access it in our code
+const db = require("../models"); // importing the database in order to access it in our code
 const Student = db.Student; // picks/selects the student table in the database so we can use it 
 const Op = db.Sequelize.Op; // gives us access to operators for specific search purposes (genre pour kugabanya search ushatse umuntu)
 
@@ -33,7 +33,7 @@ const student = {
         .catch(err => res.status(500).send({ message: err.message || "some error occured while creating "}));
 }
 
-exports.findAllForStudent = (req, res) => {
+exports.findAll = (req, res) => {
     const id = req.params.id;
     Student.findAll({where: {id: id}})
         .then((data) => {
@@ -71,30 +71,30 @@ exports.findOne = (req, res) => {
     });
 };
 
-exports.findByEmail = (req, res) => {
-  const studentEmail = req.params.studentEmail;
+// exports.findByEmail = (req, res) => {
+//   const studentEmail = req.params.studentEmail;
 
-  Student.findOne({
-    where: {
-      studentEmail: studentEmail,
-    },
-  })
-    .then((data) => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.send({ studentEmail: "not found" });
-        /*res.status(404).send({
-          message: `Cannot find student with email=${email}.`
-        });*/
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error retrieving student with email=" + studentEmail,
-      });
-    });
-};
+//   Student.findOne({
+//     where: {
+//       studentEmail: studentEmail,
+//     },
+//   })
+//     .then((data) => {
+//       if (data) {
+//         res.send(data);
+//       } else {
+//         res.send({ studentEmail: "not found" });
+//         /*res.status(404).send({
+//           message: `Cannot find student with email=${email}.`
+//         });*/
+//       }
+//     })
+//     .catch((err) => {
+//       res.status(500).send({
+//         message: "Error retrieving student with email=" + studentEmail,
+//       });
+//     });
+// };
 
 exports.update = (req, res) => {
   const id = req.params.id;
