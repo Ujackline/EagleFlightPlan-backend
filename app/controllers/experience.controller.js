@@ -1,25 +1,24 @@
 const db = require("../models"); // Import models
-const Experience = db.Experiences; // Get Experiences model
+const Experience = db.Experience; // Get Experiences model
 const Op = db.Sequelize.Op; // Sequelize operators for queries
 
 // **1. Create a new Experience**
 exports.create = (req, res) => {
-  if (!req.body.Name || !req.body.Category || !req.body.Description || !req.body.Type) {
+  if (!req.body.name || !req.body.category || !req.body.description || !req.body.type) {
     return res.status(400).send({ message: "Required fields cannot be empty!" });
   }
 
   const experience = {
-    id: req.body.id,
-    Name: req.body.Name,
-    Category: req.body.Category,
-    Description: req.body.Description,
-    Type: req.body.Type,
-    Reflection_required: req.body.Reflection_required,
-    Scheduling_type: req.body.Scheduling_type,
-    Rational: req.body.Rational,
-    Badge: req.body.Badge,
-    Majors: req.body.Majors,
-    CliftonStrengths: req.body.CliftonStrengths,
+    name: req.body.name,
+    category: req.body.category,
+    description: req.body.description,
+    type: req.body.type,
+    // Reflection_required: req.body.Reflection_required,
+    // Scheduling_type: req.body.scheduling_type,
+    // Rational: req.body.rational,
+    badge: req.body.badge,
+    major: req.body.major,
+    cliftonStrength: req.body.cliftonStrength,
   };
 
   Experience.create(experience)
@@ -67,7 +66,7 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
   const id = req.params.id;
 
-  Experience.update(req.body, { where: { experienceID: id } })
+  Experience.update(req.body, { where: { id: id } })
     .then((num) => {
       if (num == 1) res.send({ message: "Experience was updated successfully." });
       else res.send({ message: `Cannot update Experience with id=${id}. Maybe Experience was not found or req.body is empty!` });
@@ -81,7 +80,7 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Experience.destroy({ where: { experienceID: id } })
+  Experience.destroy({ where: { id: id } })
     .then((num) => {
       if (num == 1) res.send({ message: "Experience was deleted successfully!" });
       else res.send({ message: `Cannot delete Experience with id=${id}. Maybe Experience was not found!` });

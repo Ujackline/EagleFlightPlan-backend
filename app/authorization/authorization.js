@@ -1,5 +1,5 @@
 const db = require("../models");
-const Session = db.session;
+const Session = db.Session;
 
 authenticate = (req, res, next) => {
   let token = null;
