@@ -53,9 +53,9 @@ jobs:
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
           debug: false
           command: |
-            cd nodeapps/flight-plan-backend
+            cd nodeapps/flight-plan-t9-backend
             npm install
-            sudo systemctl stop flight-plan-backend
+            sudo systemctl stop flight-plan-t9-backend
             sudo cp flight-plan-t9-backend.service /lib/systemd/system/flight-plan-t9-backend.service
             sudo systemctl daemon-reload
-            sudo systemctl start flight-plan-backend
+            sudo systemctl start flight-plan-t9-backend
