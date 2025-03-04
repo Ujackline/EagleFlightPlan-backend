@@ -1,87 +1,135 @@
-const db = require("../models"); // Import models
-const Badge = db.Badge; // Get Awards model
-const Op = db.Sequelize.Op; // Sequelize operators for queries
+const db = require("../models");
+const Badge = db.Badge;
+const Op = db.Sequelize.Op;
 
-// **1. Create a new Award**
+// Create and Save a new Badge
 exports.create = (req, res) => {
-  if (!req.body.name || !req.body.description || !req.body.points || !req.body.redemption_type) {
-    return res.status(400).send({ message: "Required fields cannot be empty!" });
+  // Validate request
+  if (!req.body.name) {
+    res.status(400).send({
+      message: "Badge name cannot be empty!"
+    });
+    return;
   }
 
+  // Create a Badge
   const badge = {
+    id: req.body.id,
     name: req.body.name,
-    id:req.body.id,
+    type: req.body.type,
     description: req.body.description,
-    points: req.body.points,
-    badge_type: req.body.badge_type,
-    
+    points: req.body.points
   };
 
+  // Save Badge in the database
   Badge.create(badge)
-    .then((data) => res.send(data))
-    .catch((err) =>
-      res.status(500).send({ message: err.message || "Some error occurred while creating the badge." })
-    );
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while creating the Badge."
+      });
+    });
 };
 
-// **2. Retrieve all Awards**
+// Retrieve all Badges from the database
 exports.findAll = (req, res) => {
   Badge.findAll()
-    .then((data) => res.send(data))
-    .catch((err) =>
-      res.status(500).send({ message: err.message || "Some error occurred while retrieving badges." })
-    );
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving badges."
+      });
+    });
 };
 
-// **3. Retrieve an Award by ID**
+// Find a single Badge with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
   Badge.findByPk(id)
-    .then((data) => {
-      if (data) res.send(data);
-      else res.status(404).send({ message: `Cannot find Badge with id=${id}.` });
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find Badge with id=${id}.`
+        });
+      }
     })
-    .catch((err) =>
-      res.status(500).send({ message: "Error retrieving Badge with id=" + id })
-    );
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Error retrieving Badge with id=" + id
+      });
+    });
 };
 
-
-
-// **5. Update a badge**
+// Update a Badge by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
 
-  Badge.update(req.body, { where: { id: id } })
-    .then((num) => {
-      if (num == 1) res.send({ message: "a badge was updated successfully." });
-      else res.send({ message: `Cannot update a badge with id=${id}. Maybe a badge was not found or req.body is empty!` });
+  Badge.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Badge was updated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot update Badge with id=${id}. Maybe Badge was not found or req.body is empty!`
+        });
+      }
     })
-    .catch((err) =>
-      res.status(500).send({ message: "Error updating a badge with id=" + id })
-    );
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Error updating Badge with id=" + id
+      });
+    });
 };
 
-// **6. Delete an a badge**
+// Delete a Badge with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Award.destroy({ where: { id: id } })
-    .then((num) => {
-      if (num == 1) res.send({ message: "Award was deleted successfully!" });
-      else res.send({ message: `Cannot delete Award with id=${id}. Maybe Award was not found!` });
+  Badge.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Badge was deleted successfully!"
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Badge with id=${id}. Maybe Badge was not found!`
+        });
+      }
     })
-    .catch((err) =>
-      res.status(500).send({ message: "Could not delete Award with id=" + id })
-    );
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Could not delete Badge with id=" + id
+      });
+    });
 };
 
-// **7. Delete all badges**
+// Delete all Badges from the database
 exports.deleteAll = (req, res) => {
-  Badge.destroy({ where: {}, truncate: false })
-    .then((nums) => res.send({ message: `${nums} Awards were deleted successfully!` }))
-    .catch((err) =>
-      res.status(500).send({ message: err.message || "Some error occurred while removing all Awards." })
-    );
+  Badge.destroy({
+    where: {},
+    truncate: false
+  })
+    .then(nums => {
+      res.send({ message: `${nums} Badges were deleted successfully!` });
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while removing all badges."
+      });
+    });
 };
+
