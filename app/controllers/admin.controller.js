@@ -1,5 +1,5 @@
-const db = require(models); // importing the database in order to access it in our code
-const Admin = db.Admin; // picks/selects the Admin table in the database so we can use it 
+const db = require("../models"); // importing the database in order to access it in our code
+const Admin = db.admin; // picks/selects the Admin table in the database so we can use it 
 const Op = db.Sequelize.Op; // gives us access to operators for specific search purposes (genre pour kugabanya search ushatse umuntu)
 
 // const  VALID_ROLES = ["Admin", "admin"]; 

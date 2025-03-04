@@ -45,16 +45,16 @@ exports.findOne = (req, res) => {
     );
 };
 
-// **4. Retrieve FlightPlans by Student ID**
-exports.findByStudent = (req, res) => {
-  const id = req.params.id;
+// // **4. Retrieve FlightPlans by Student ID**
+// exports.findByStudent = (req, res) => {
+//   const id = req.params.id;
 
-  FlightPlan.findAll({ where: { id: id } })
-    .then((data) => res.send(data))
-    .catch((err) =>
-      res.status(500).send({ message: "Error retrieving FlightPlans for id=" + id })
-    );
-};
+//   FlightPlan.findAll({ where: { id: id } })
+//     .then((data) => res.send(data))
+//     .catch((err) =>
+//       res.status(500).send({ message: "Error retrieving FlightPlans for id=" + id })
+//     );
+// };
 
 // **5. Update a FlightPlan**
 exports.update = (req, res) => {
