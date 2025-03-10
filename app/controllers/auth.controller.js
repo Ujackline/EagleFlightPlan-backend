@@ -1,7 +1,7 @@
 const db = require("../models");
 const authconfig = require("../config/auth.config");
-const User = db.user;
-const Session = db.session;
+const User = db.User;
+const Session = db.Session;
 const Op = db.Sequelize.Op;
 
 const { google } = require("googleapis");

@@ -7,7 +7,7 @@ module.exports = (app) => {
     router.post("/", [authenticate], admin.create);
   
     // Retrieve all admins
-    router.get("/", [authenticate], admin.findAll);
+    router.get("/", [authenticate], admin.findAllForAdmin);
   
     // Retrieve a single admin with id
     router.get("/:id", [authenticate], admin.findOne);
@@ -21,6 +21,6 @@ module.exports = (app) => {
     // Delete all admin
     router.delete("/", [authenticate], admin.deleteAll);
   
-    app.use("/EaglesFlightPlan/user", router);
+    app.use("/flight-plan-t9/user", router);
   };
   

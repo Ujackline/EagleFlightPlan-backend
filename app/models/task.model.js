@@ -34,6 +34,12 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
       },
+
+      major: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+
     });
   
     return Task;

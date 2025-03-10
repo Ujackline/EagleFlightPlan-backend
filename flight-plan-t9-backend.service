@@ -1,14 +1,15 @@
 [Unit]
-Description=NodeJS EaglesFlightPlan App
+Description=NodeJS flight-plan App
 After=network.target
  
 [Service]
 Type=simple
 User=ubuntu
-WorkingDirectory=/home/ubuntu/nodeapps/EaglesFlightPlan-backend/
+WorkingDirectory=/home/ubuntu/nodeapps/2025/flight-plan/t9
 ExecStart=/usr/bin/npm run start
 Restart=on-failure
  
 [Install]
 WantedBy=multi-user.target
+
 

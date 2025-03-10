@@ -21,6 +21,6 @@ module.exports = (app) => {
     // Delete all experiences
     router.delete("/", [authenticate], experience.deleteAll);
   
-    app.use("/EaglesFlightPlan/experience", router);
+    app.use("/flight-plan-t9/experience", router);
   };
   
