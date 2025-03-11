@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const Admin = sequelize.define("admin", {
+    const StudentWorker = sequelize.define("studentworker", {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -17,14 +17,15 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+   
       role: {
         type: Sequelize.ENUM("admin", "student", "student_worker"),
         allowNull: false,
         defaultValue: "student", // Default role for new users
       },
-   
+
     });
   
-    return Admin;
+    return StudentWorker;
   };
   
