@@ -17,6 +17,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
+
+    role: {
+      type: Sequelize.ENUM("admin", "student", "student_worker"),
+      allowNull: false,
+      defaultValue: "student", // Default role for new users
+    },
+
     // refresh_token: {
     //   type: Sequelize.STRING(512),
     //   allowNull: true

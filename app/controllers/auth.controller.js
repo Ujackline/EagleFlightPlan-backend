@@ -2,6 +2,7 @@ const db = require("../models");
 const authconfig = require("../config/auth.config");
 const User = db.User;
 const Session = db.Session;
+const Admin = db.Admin;
 const Op = db.Sequelize.Op;
 
 const { google } = require("googleapis");
@@ -59,6 +60,7 @@ exports.login = async (req, res) => {
   let user = {};
   let session = {};
 
+
   await User.findOne({
     where: {
       email: email,
@@ -73,12 +75,35 @@ exports.login = async (req, res) => {
           fName: firstName,
           lName: lastName,
           email: email,
+          role: 'Admin',
+          //isAdmin: false
         };
       }
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
     });
+
+
+    
+
+  //  //  If user is an admin, ensure they are also in the Admin table
+  //  if (user.role === "admin") {
+  //   const existingAdmin = await Admin.findOne({ where: { email: user.email } });
+
+  //   if (!existingAdmin) {
+  //     console.log(" Adding admin to Admin table...");
+  //     await Admin.create({
+  //       email: user.email,
+  //       fName: user.fName,
+  //       lName: user.lName,
+  //       userId: user.id,  //  Link admin to userId
+  //     });
+  //   }
+  // }
+
+
+
 
   // this lets us get the user id
   if (user.id === undefined) {
