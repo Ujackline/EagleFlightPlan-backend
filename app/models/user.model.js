@@ -23,6 +23,12 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       defaultValue: "student", // Default role for new users
     },
+    
+    isAdmin: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
 
     // refresh_token: {
     //   type: Sequelize.STRING(512),

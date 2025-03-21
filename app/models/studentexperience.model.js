@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
 
       CompletionDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
               },
     
       pointsEarned: {
@@ -21,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
               },
      reflectionText: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
               },
               
     });

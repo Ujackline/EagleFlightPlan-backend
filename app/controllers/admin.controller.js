@@ -1,9 +1,13 @@
+const { admin } = require("googleapis/build/src/apis/admin");
 const db = require("../models"); // Import database models
 const Admin = db.Admin; // Reference the Admin model
+const User = db.User;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
+const Notification = db.Notification; // Assuming notifications are stored in a table
 
-// ✅ 1️⃣ Create an Admin with Role Validation
+
+//  Create an Admin with Role Validation
 exports.create = async (req, res) => {
   try {
     const { fName, lName, email, role } = req.body;
@@ -37,21 +41,63 @@ exports.create = async (req, res) => {
   }
 };
 
-// ✅ 2️⃣ Find All Admins
-exports.findAll = async (req, res) => {
+//  Find All Admins
+exports.getAllUsers = async (req, res) => {
   try {
-    const admins = await Admin.findAll();
-    res.send(admins);
-  } catch (error) {
-    console.error("Error retrieving admins:", error);
-    res.status(500).send({ message: "Error retrieving all admins." });
+    const users = await User.findAll({
+      attributes: ['userId', 'fName', 'lName', 'email', 'role', 'isAdmin'],
+      order: [['createdAt', 'DESC']]
+    });
+    res.send(users);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Some error occurred while retrieving users."
+    });
   }
 };
 
-// ✅ 3️⃣ Find an Admin by ID
+// Matches updateUserRole(userId, role) in adminServices.js
+exports.updateUserRole = async (req, res) => {
+  const userId = req.params.userId;
+  const { role } = req.body;
+
+  if (!role || !['admin', 'student'].includes(role)) {
+    return res.status(400).send({
+      message: "Role must be either 'admin' or 'student'"
+    });
+  }
+
+  try {
+    const result = await User.update(
+      {
+        role: role,
+        isAdmin: role === 'admin'
+      },
+      { where: { id: userId } }
+    );
+
+    if (result[0] === 1) {
+      res.send({
+        message: "User role was updated successfully."
+      });
+    } else {
+      res.status(404).send({
+        message: `Cannot update role for user with id=${userId}. User not found!`
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      message: "Error updating user role with id=" + userId
+    });
+  }
+};
+
+
+
+//  Find an Admin by ID
 exports.findOne = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     const admin = await Admin.findByPk(id);
 
     if (!admin) {
@@ -65,7 +111,51 @@ exports.findOne = async (req, res) => {
   }
 };
 
-// ✅ 4️⃣ Find an Admin by Email (Used for Google Login)
+exports.getAdminInfo = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Not an admin." });
+    }
+
+    // 🔍 Fetch full admin details from DB
+    const admin = await Admin.findOne({ where: { id: req.user.id } });
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin record not found in the database." });
+    }
+
+    res.status(200).json({
+      id: admin.id,
+      fName: admin.fName,
+      lName: admin.lName,
+      email: admin.email,
+      role: admin.role,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching admin info:", error);
+    res.status(500).json({ message: "Error fetching admin info", error });
+  }
+};
+
+
+
+exports.getNotifications = async (req, res) => {
+  try {
+    console.log("JAckie");
+
+    console.log(req.user, req.user.id);
+
+    const notifications = await Notification.findAll({
+      where: { recipientId: req.user.id },
+      order: [["createdAt", "DESC"]],
+    });
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching notifications", error });
+  }
+};
+
+// Find an Admin by Email (Used for Google Login)
 exports.findByEmail = async (req, res) => {
   try {
     const { email } = req.params;
@@ -89,65 +179,25 @@ exports.findByEmail = async (req, res) => {
   }
 };
 
-// ✅ 5️⃣ Update an Admin (Only Admins Can Change Roles)
-exports.update = async (req, res) => {
+// Matches deleteUser(userId) in adminServices.js
+exports.deleteUser = async (req, res) => {
+  const userId = req.params.userId;
+
   try {
-    const { id } = req.params;
-    const { role } = req.body;
+    const result = await User.destroy({
+      where: { id: userId }
+    });
 
-    // Prevent role changes unless requester is an admin
-    if (role && req.user.role !== "admin") {
-      return res.status(403).send({ message: "Access denied! Only admins can change roles." });
-    }
-
-    const [updated] = await Admin.update(req.body, { where: { id } });
-
-    if (updated) {
-      res.send({ message: "Admin was updated successfully." });
+    if (result === 1) {
+      res.send({ message: "User was deleted successfully!" });
     } else {
-      res.status(404).send({ message: `Cannot update admin with id=${id}. Maybe admin was not found.` });
+      res.status(404).send({
+        message: `Cannot delete User with id=${userId}. Maybe User was not found!`
+      });
     }
-  } catch (error) {
-    console.error("Error updating admin:", error);
-    res.status(500).send({ message: "Error updating admin." });
-  }
-};
-
-// ✅ 6️⃣ Delete an Admin (Only Admins Can Delete Other Admins)
-exports.delete = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Find the admin
-    const admin = await Admin.findByPk(id);
-    if (!admin) {
-      return res.status(404).send({ message: "Admin not found." });
-    }
-
-    // Prevent deleting another admin unless user is an admin
-    if (admin.role === "admin" && req.user.role !== "admin") {
-      return res.status(403).send({ message: "Access denied! Only admins can delete other admins." });
-    }
-
-    await Admin.destroy({ where: { id } });
-    res.send({ message: "Admin deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting admin:", error);
-    res.status(500).send({ message: "Could not delete admin." });
-  }
-};
-
-// ✅ 7️⃣ Delete All Admins (Only Admins Can Delete All)
-exports.deleteAll = async (req, res) => {
-  try {
-    if (req.user.role !== "admin") {
-      return res.status(403).send({ message: "Access denied! Only admins can delete all admins." });
-    }
-
-    const deleted = await Admin.destroy({ where: {}, truncate: false });
-    res.send({ message: `${deleted} Admins were deleted successfully!` });
-  } catch (error) {
-    console.error("Error deleting admins:", error);
-    res.status(500).send({ message: "Error deleting all admins." });
+  } catch (err) {
+    res.status(500).send({
+      message: "Could not delete User with id=" + userId
+    });
   }
 };

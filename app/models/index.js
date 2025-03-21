@@ -27,6 +27,8 @@ db.FlightPlan = require("./flightplan.model.js")(sequelize, Sequelize);
 db.Task = require("./task.model.js")(sequelize, Sequelize);
 db.Student = require("./student.model.js")(sequelize, Sequelize);
 db.Event = require("./event.model.js")(sequelize, Sequelize);
+db.Notification = require("./notification.model.js")(sequelize, Sequelize);
+
 
 
 // Bridge Tables
@@ -39,7 +41,7 @@ db.StudentEvent = require("./studentevent.model.js")(sequelize, Sequelize);
 db.StudentBadge = require("./studentbadge.model.js")(sequelize, Sequelize);
 db.StudentAward= require("./studentaward.model.js")(sequelize, Sequelize);
 db.StudentTask = require("./studenttask.model.js")(sequelize, Sequelize);
-
+db.Notification= require("./notification.model.js")(sequelize, Sequelize);
 
 // Associations
 
