@@ -6,31 +6,40 @@ const Op = db.Sequelize.Op; // gives us access to operators for specific search 
 
 // request & response; creates a student object
 exports.create = (req,res) => {
-    if(!req.body.studentFirstName){
+    if(!req.body.fName){
         return res.status(400).send({message: "name cannot be empty!"}); 
     }
 
 // maps these values to the student object
 const student = {
     id: req.body.id,
-    studentFirstName: req.body.studentFirstName,
-    studentLastName: req.body.studentLastName,
-    studentEmail: req.body.studentEmail,
-    studentSchoolID: req.body.studentSchoolID,
-    studentGradDate: req.body.studentGradDate, 
-    studentMajor: req.body.studentMajor,
-    studentCliftonStrengths: req.body.studentCliftonStrengths,
-    studentAwards: req.body.studentAwards,
-    studentPointsAwarded: req.body.studentPointsAwarded,
-    studentPointsUsed: req.body.studentPointsUsed,
-    studentPointsAvailable: req.body.studentPointsAvailable,
-    studentBadges: req.body.studentBadges,
+    fName: req.body.fName,
+    lName: req.body.lName,
+    email: req.body.email,
+    studentID: req.body.studentID,
+    major: req.body.major,
+    grad_semester: req.body.grad_semester,
+    cliftonstrengths: req.body.cliftonstrengths,
+  };
+  
+  Student.create(student)
+    .then(data => res.status(201).json({ message: "Student profile created", data }))
+    .catch(err => res.status(500).send({ message: "Error creating student", error: err }));
 
-}; 
+    // id: req.body.id,
+    // studentFirstName: req.body.studentFirstName,
+    // studentLastName: req.body.studentLastName,
+    // studentEmail: req.body.studentEmail,
+    // studentSchoolID: req.body.studentSchoolID,
+    // studentGradDate: req.body.studentGradDate, 
+    // studentMajor: req.body.studentMajor,
+    // studentCliftonStrengths: req.body.studentCliftonStrengths,
+    // studentAwards: req.body.studentAwards,
+    // studentPointsAwarded: req.body.studentPointsAwarded,
+    // studentPointsUsed: req.body.studentPointsUsed,
+    // studentPointsAvailable: req.body.studentPointsAvailable,
+    // studentBadges: req.body.studentBadges,
 
-    Student.create(student)
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "some error occured while creating "}));
 }
 
 exports.findAll = (req, res) => {

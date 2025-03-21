@@ -6,6 +6,7 @@ module.exports = (app) => {
   // Create a new User
   router.post("/", [authenticate], user.create);
 
+  
   // Retrieve all People
   router.get("/", [authenticate], user.findAll);
 
@@ -20,6 +21,12 @@ module.exports = (app) => {
 
   // Delete all User
   router.delete("/", [authenticate], user.deleteAll);
+
+
+  // Admin Routes
+  router.get("/admin/info", [authenticate, user.isAdmin], user.findAllAdmins);
+  router.put("/:id", [authenticate, user.isAdmin], user.update);
+  router.delete("/:id", [authenticate, user.isAdmin], user.delete);
 
   app.use("/flight-plan-t9/user", router);
 };

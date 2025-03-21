@@ -41,7 +41,7 @@ exports.create = (req, res) => {
 // Retrieve all Experience entries for a specific Resume
 exports.findAll = (req, res) => {
   const id = req.params.id;
-  Experience.findAll({ where: { user_id: id } })
+  Experience.findAll({ where: { id: id } })
     .then(data => res.send(data))
     .catch(err => {
       console.error("Error retrieving Experience:", err);
