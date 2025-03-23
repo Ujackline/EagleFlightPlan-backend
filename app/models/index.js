@@ -45,9 +45,18 @@ db.Notification= require("./notification.model.js")(sequelize, Sequelize);
 
 // Associations
 
+
 // FlightPlan - Experience (Many-to-Many)
 db.FlightPlan.belongsToMany(db.Experience, {through: db.FlightPlanExperience, as: "experiences", foreignKey: "flightPlanId"});
 db.Experience.belongsToMany(db.FlightPlan, {through: db.FlightPlanExperience, as: "flightPlans", foreignKey: "experienceId"});
+
+db.FlightPlan.belongsToMany(db.Experience, { through: "flightplanexperiences", as: "experience", foreignKey: "id" });
+db.Experience.belongsToMany(db.FlightPlan, { through: "flightplanexperiences", as: "flightplan", foreignKey: "id" });
+
+
+// FlightPlan - Task (Many-to-Many)
+db.FlightPlan.belongsToMany(db.Task, {through: db.FlightPlanTask, as: "task", foreignKey: "flightPlanId"});
+db.Task.belongsToMany(db.FlightPlan, {through: db.FlightPlanTask, as: "flightPlans",foreignKey: "taskId"});
 
 
 // FlightPlan - Task (Many-to-Many)
@@ -64,6 +73,10 @@ db.Experience.belongsToMany(db.Student, { through: db.StudentExperience, as: "st
 db.Badge.belongsToMany(db.Experience, { through: db.BadgeExperience, as: "experiences", foreignKey: "badgeId" });
 db.Experience.belongsToMany(db.Badge, { through: db.BadgeExperience, as: "badges", foreignKey: "experienceId" });
 
+// Student - Task (Many-to-Many)
+db.Student.belongsToMany(db.Task, { through: db.StudentTask, as: "task", foreignKey: "studentId" });
+db.Task.belongsToMany(db.Student, { through: db.StudentTask, as: "students", foreignKey: "taskId" });
+
 // Student - Event (Many-to-Many)
 db.Student.belongsToMany(db.Event, { through: db.StudentEvent, as: "events", foreignKey: "studentId" });
 db.Event.belongsToMany(db.Student, { through: db.StudentEvent, as: "students", foreignKey: "eventId" });
@@ -75,6 +88,9 @@ db.Badge.belongsToMany(db.Student, { through: db.StudentBadge, as: "students", f
 // Student - Task (Many-to-Many)
 db.Student.belongsToMany(db.Task, { through: db.StudentTask, as: "tasks", foreignKey: "studentId" });
 db.Task.belongsToMany(db.Student, { through: db.StudentTask, as: "students", foreignKey: "taskId" });
+// Badge - Task (Many-to-Many)
+db.Badge.belongsToMany(db.Task, { through: db.BadgeTask, as: "task", foreignKey: "badgeId" });
+db.Task.belongsToMany(db.Badge, { through: db.BadgeTask, as: "badges", foreignKey: "taskId" });
 
 // Student - Award (Many-to-Many)
 db.Student.belongsToMany(db.Award, { through: db.StudentAward, as: "awards", foreignKey: "studentId" });
