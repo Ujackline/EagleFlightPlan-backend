@@ -7,7 +7,7 @@ const app = express();
 
 const db = require("./app/models");
 
-db.sequelize.sync({force: true});
+db.sequelize.sync({force: false});
 
 var corsOptions = {
   origin: "http://localhost:8081",
@@ -37,7 +37,8 @@ require("./app/routes/event.routes.js")(app);
 require("./app/routes/task.routes.js")(app);
 require("./app/routes/student.routes.js")(app);
 require("./app/routes/flightplan.routes.js")(app);
-
+require("./app/routes/notification.routes.js")(app);
+require("./app/routes/studentworker.routes.js")(app);
 
 
 // set port, listen for requests
