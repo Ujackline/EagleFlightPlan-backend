@@ -4,6 +4,7 @@
   "description": "EagleFlightPlan Node.js with Rest API",
   "main": "server.js",
   "scripts": {
+    
     "test": "jest --",
     "start": "node server.js",
     "bundle": "mkdir deploy && cp -r app server.js package.json package-lock.json flight-plan-t9-backend.service .env deploy"
