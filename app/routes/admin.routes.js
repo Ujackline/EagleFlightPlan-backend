@@ -9,7 +9,7 @@ module.exports = (app) => {
   router.post("/", [authenticate, isAdmin ], admin.create);
 
   // Retrieve all admins (Only admins)
-  router.get("/", [authenticate, isAdmin], admin.getAllUsers);
+  router.get("/users", [authenticate, isAdmin], admin.getAllUsers);
   router.get("/info", [authenticate, isAdmin], admin.getAdminInfo);
 
   
@@ -23,7 +23,9 @@ module.exports = (app) => {
 
 
   // Update an admin (Only admins)
-  router.put("/:id", [authenticate, isAdmin], admin.updateUserRole);
+  //router.put("/:id", [authenticate, isAdmin], admin.updateUserRole);
+  router.put("/users/:id/role", [authenticate, isAdmin], admin.updateUserRole);
+
 
   // Delete an admin (Only admins)
   router.delete("/:id", [authenticate, isAdmin], admin.deleteUser);
