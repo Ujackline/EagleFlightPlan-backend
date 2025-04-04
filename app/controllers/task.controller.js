@@ -1,6 +1,10 @@
 const db = require("../models");
 const Task = db.Task;
-const Op = db.Sequelize.Op;
+const StudentTask = db.StudentTask;
+const Student = db.Student;
+const Admin = db.Admin;
+const { Op } = db.Sequelize;
+const notificationController = require('./notification.controller'); // or wherever you have it
 
 
 // Create and Save a new Task
@@ -16,11 +20,11 @@ exports.create = (req, res) => {
   const task = {
     category: req.body.category,
     id: req.body.id,
-    taskName: req.body.taskName,
+    taskName: req.body.name,
     description: req.body.description,
-    NumOfPoints: req.body.NumOfPoints,
+    Points: req.body.points,
     Rationale: req.body.Rationale,
-    grad_semester: req.body.grad_semester,
+    semester: req.body.semester,
     scheduling_type: req.body.scheduling_type,
     reflection_required: req.body.reflection_required,
     //resumeId: req.body.resumeId,
@@ -40,39 +44,7 @@ exports.create = (req, res) => {
       });
     });
 };
-// continue ici
-// Retrieve all Task entries for a specific Resume
-// exports.findAll = (req, res) => {
-//   const id = req.params.id;
-//   Task.findAll({ where: { id: id } })
-//     .then(data => res.send(data))
-//     .catch(err => {
-//       console.error("Error retrieving Task:", err);
-//       res.status(500).send({
-//         message: err.message || "Error retrieving Task."
-//       });
-//     });
-// };
 
-
-// exports.findAll = (req, res) => {
-//   const id = req.params.id || req.query.id || req.body.id;
-
-
-//   if (!id) {
-//     return res.status(400).send({ message: "ID parameter is missing." });
-//   }
-
-
-//   Task.findAll({ where: { resumeId: id } }) // Use the correct field
-//     .then(data => res.send(data))
-//     .catch(err => {
-//       console.error("Error retrieving Task:", err);
-//       res.status(500).send({
-//         message: err.message || "Error retrieving Task."
-//       });
-//     });
-// };
 exports.findAll = (req, res) => {
   Task.findAll()  // No filtering by ID
     .then(data => res.send(data))
@@ -83,11 +55,6 @@ exports.findAll = (req, res) => {
       });
     });
 };
-
-
-
-
-
 
 // Find a single Task with an id
 exports.findOne = (req, res) => {
@@ -179,4 +146,82 @@ exports.deleteAll = (req, res) => {
         message: err.message || "Some error occurred while removing all Task entries."
       });
     });
+};
+exports.markAsComplete = async (req, res) => {
+  try {
+    const task = await Task.findByPk(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    task.status = "Pending";
+    await task.save();
+
+    await StudentTask.create({
+      studentId: req.user.id,
+      taskId: task.id,
+      status: "pending",
+      CompletionDate: new Date()
+    });
+
+    const admins = await Admin.findAll();
+
+    for (const admin of admins) {
+      await notificationController.sendNotification(
+        admin.id,
+        `Task "${task.name}" was marked as complete and needs review.`,
+        "task_approval",
+        { taskId: task.id }
+      );
+    }
+
+    res.json({ message: "Task marked as Pending", task });
+  } catch (error) {
+    console.error("Error marking task complete:", error);
+    res.status(500).json({ message: "Error updating task", error });
+  }
+};
+
+exports.approveTask = async (req, res) => {
+  try {
+    const task = await Task.findByPk(req.params.id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.status = "Approved";
+    task.approvedBy = req.body.approvedBy || "Admin";
+    task.completionDate = new Date();
+    await task.save();
+
+    const studentTask = await StudentTask.findOne({
+      where: {
+        taskId: task.id,
+        status: { [Op.not]: "completed" }
+      }
+    });
+
+    if (!studentTask) return res.status(404).json({ message: "No student-task record found" });
+
+    studentTask.status = "completed";
+    studentTask.CompletionDate = new Date();
+    await studentTask.save();
+
+    res.json({ message: "Task approved and marked complete", task });
+  } catch (error) {
+    console.error("Error approving task:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+exports.rejectTask = async (req, res) => {
+  try {
+    const task = await Task.findByPk(req.params.id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.status = "Rejected";
+    await task.save();
+
+    res.json({ message: "Task rejected successfully", task });
+  } catch (error) {
+    res.status(500).json({ message: "Error rejecting task", error });
+  }
 };

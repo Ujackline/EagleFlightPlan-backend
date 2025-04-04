@@ -46,18 +46,10 @@ db.Notification= require("./notification.model.js")(sequelize, Sequelize);
 // Associations
 
 
+
 // FlightPlan - Experience (Many-to-Many)
-db.FlightPlan.belongsToMany(db.Experience, {through: db.FlightPlanExperience, as: "experiences", foreignKey: "flightPlanId"});
-db.Experience.belongsToMany(db.FlightPlan, {through: db.FlightPlanExperience, as: "flightPlans", foreignKey: "experienceId"});
-
-db.FlightPlan.belongsToMany(db.Experience, { through: "flightplanexperiences", as: "experience", foreignKey: "id" });
-db.Experience.belongsToMany(db.FlightPlan, { through: "flightplanexperiences", as: "flightplan", foreignKey: "id" });
-
-
-// FlightPlan - Task (Many-to-Many)
-db.FlightPlan.belongsToMany(db.Task, {through: db.FlightPlanTask, as: "task", foreignKey: "flightPlanId"});
-db.Task.belongsToMany(db.FlightPlan, {through: db.FlightPlanTask, as: "flightPlans",foreignKey: "taskId"});
-
+db.FlightPlan.belongsToMany(db.Experience, { through: db.FlightPlanExperience, as: "experiences", foreignKey: "flightPlanId",});
+db.Experience.belongsToMany(db.FlightPlan, {through: db.FlightPlanExperience, as: "flightPlans", foreignKey: "experienceId",});
 
 // // FlightPlan - Task (Many-to-Many)
 // db.FlightPlan.belongsToMany(db.Task, {through: db.FlightPlanTask, as: "tasks", foreignKey: "flightPlanId"});
@@ -74,7 +66,7 @@ db.Badge.belongsToMany(db.Experience, { through: db.BadgeExperience, as: "experi
 db.Experience.belongsToMany(db.Badge, { through: db.BadgeExperience, as: "badges", foreignKey: "experienceId" });
 
 // Student - Task (Many-to-Many)
-db.Student.belongsToMany(db.Task, { through: db.StudentTask, as: "task", foreignKey: "studentId" });
+db.Student.belongsToMany(db.Task, { through: db.StudentTask, as: "tasks", foreignKey: "studentId" });
 db.Task.belongsToMany(db.Student, { through: db.StudentTask, as: "students", foreignKey: "taskId" });
 
 // Student - Event (Many-to-Many)
@@ -90,7 +82,7 @@ db.Badge.belongsToMany(db.Student, { through: db.StudentBadge, as: "students", f
 // db.Task.belongsToMany(db.Student, { through: db.StudentTask, as: "students", foreignKey: "taskId" });
 
 // Badge - Task (Many-to-Many)
-db.Badge.belongsToMany(db.Task, { through: db.BadgeTask, as: "task", foreignKey: "badgeId" });
+db.Badge.belongsToMany(db.Task, { through: db.BadgeTask, as: "tasks", foreignKey: "badgeId" });
 db.Task.belongsToMany(db.Badge, { through: db.BadgeTask, as: "badges", foreignKey: "taskId" });
 
 // Student - Award (Many-to-Many)
@@ -101,9 +93,6 @@ db.Award.belongsToMany(db.Student, { through: db.StudentAward, as: "students", f
 // db.Badge.belongsToMany(db.Task, { through: db.BadgeTask, as: "tasks", foreignKey: "badgeId" });
 // db.Task.belongsToMany(db.Badge, { through: db.BadgeTask, as: "badges", foreignKey: "taskId" });
 
-// FlightPlan - Student (One-to-Many)
-db.FlightPlan.hasMany(db.Student, { as: "students", foreignKey: "flightPlanId", onDelete: "CASCADE" });
-db.Student.belongsTo(db.FlightPlan, { as: "flightPlan", foreignKey: "flightPlanId", onDelete: "CASCADE" });
 
 // Event - Experience (One-to-Many)
 db.Event.hasMany(db.Experience, { as: "experiences", foreignKey: "eventId", onDelete: "CASCADE" });
@@ -113,8 +102,8 @@ db.Experience.belongsTo(db.Event, { as: "event", foreignKey: "eventId", onDelete
 db.Admin.hasMany(db.Event, { as: "events", foreignKey: "adminId", onDelete: "CASCADE" });
 db.Event.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
 
-// Admin - FlightPlan (One-to-Many)
-db.Admin.hasMany(db.FlightPlan, { as: "flightPlans", foreignKey: "adminId", onDelete: "CASCADE" });
-db.FlightPlan.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
+// // Admin - FlightPlan (One-to-Many)
+// db.Admin.hasMany(db.FlightPlan, { as: "flightPlans", foreignKey: "adminId", onDelete: "CASCADE" });
+// db.FlightPlan.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
 
 module.exports = db;

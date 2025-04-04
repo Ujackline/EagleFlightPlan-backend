@@ -28,11 +28,10 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
     },  
 
-    grad_semester: {
+    semester: {
       type: Sequelize.STRING,
-      allowNull: true,
+      allowNull: false,
     },
-
 
     cliftonstrengths: {
       type: Sequelize.STRING,
@@ -43,10 +42,27 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
 
-
     major: {
       type: Sequelize.STRING,
       allowNull: true,
+    },
+
+    badge: {
+      type: Sequelize.STRING,
+      allowNull: true,
+  },
+    status: {
+        type: Sequelize.ENUM("Incomplete", "Pending", "Approved", "Rejected"),
+        allowNull: false,
+        defaultValue: "Incomplete",
+    },
+    approvedBy: {
+        type: Sequelize.STRING, // Can store an admin's name or ID
+        allowNull: true,
+    },
+    completionDate: {
+        type: Sequelize.DATE,
+        allowNull: true,
     },
 
 

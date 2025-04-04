@@ -20,6 +20,8 @@ module.exports = (app) => {
   
     // Delete all flightplans
     router.delete("/", [authenticate], flightplan.deleteAll);
+    router.get("/student/:studentId/semester/:semester", [authenticate], flightplan.findByStudentAndSemester);
+
   
     app.use("/flight-plan-t9/flightplan", router);
   };

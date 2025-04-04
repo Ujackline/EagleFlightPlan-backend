@@ -3,6 +3,7 @@
 module.exports = (app) => {
   const task = require("../controllers/task.controller.js");
   const { authenticate } = require("../authorization/authorization.js");
+  const { isAdmin} = require ("../controllers/user.controller.js");
   var router = require("express").Router();
 
   // Create a new task
@@ -15,13 +16,19 @@ module.exports = (app) => {
   router.get("/:id", [authenticate], task.findOne);
 
   // Update a task with id
-  router.put("/:id", [authenticate], task.update);
+  router.put("/:id", [authenticate, isAdmin], task.update);
 
   // Delete a task with id
-  router.delete("/:id", [authenticate], task.delete);
+  router.delete("/:id", [authenticate, isAdmin], task.delete);
 
   // Delete all task
-  router.delete("/", [authenticate], task.deleteAll);
+  router.delete("/", [authenticate, isAdmin], task.deleteAll);
+
+
+  router.patch("/:id/markComplete", [authenticate], task.markAsComplete);
+  router.patch("/:id/approve", [authenticate, isAdmin], task.approveTask);
+  router.patch("/:id/reject", [authenticate, isAdmin], task.rejectTask);
+
 
   app.use("/flight-plan-t9/task", router);
 };

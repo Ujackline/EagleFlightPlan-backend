@@ -37,6 +37,16 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+
+      TotalPoints: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      
+      semester: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       
 
     });
