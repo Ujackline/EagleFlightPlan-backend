@@ -1,17 +1,14 @@
-const db = require("../models"); // importing the database in order to access it in our code
-const Student = db.Student; // picks/selects the student table in the database so we can use it 
-const Op = db.Sequelize.Op; // gives us access to operators for specific search purposes (genre pour kugabanya search ushatse umuntu)
+const db = require("../models");
+const Student = db.Student;
+const Op = db.Sequelize.Op;
 
-// const  VALID_ROLES = ["student", "admin"]; 
+// ✅ Create a new student
+exports.create = (req, res) => {
+  if (!req.body.fName) {
+    return res.status(400).send({ message: "First name cannot be empty!" });
+  }
 
-// request & response; creates a student object
-exports.create = (req,res) => {
-    if(!req.body.fName){
-        return res.status(400).send({message: "name cannot be empty!"}); 
-    }
-
-// maps these values to the student object
-const student = {
+  const student = {
     id: req.body.id,
     fName: req.body.fName,
     lName: req.body.lName,
@@ -20,152 +17,101 @@ const student = {
     major: req.body.major,
     grad_semester: req.body.grad_semester,
     cliftonstrengths: req.body.cliftonstrengths,
+    flightPlanId: req.body.flightPlanId,
+    points: req.body.points,
   };
-  
+
   Student.create(student)
     .then(data => res.status(201).json({ message: "Student profile created", data }))
     .catch(err => res.status(500).send({ message: "Error creating student", error: err }));
-
-    // id: req.body.id,
-    // studentFirstName: req.body.studentFirstName,
-    // studentLastName: req.body.studentLastName,
-    // studentEmail: req.body.studentEmail,
-    // studentSchoolID: req.body.studentSchoolID,
-    // studentGradDate: req.body.studentGradDate, 
-    // studentMajor: req.body.studentMajor,
-    // studentCliftonStrengths: req.body.studentCliftonStrengths,
-    // studentAwards: req.body.studentAwards,
-    // studentPointsAwarded: req.body.studentPointsAwarded,
-    // studentPointsUsed: req.body.studentPointsUsed,
-    // studentPointsAvailable: req.body.studentPointsAvailable,
-    // studentBadges: req.body.studentBadges,
-
-}
-
-exports.findAll = (req, res) => {
-    const id = req.params.id;
-    Student.findAll({where: {id: id}})
-        .then((data) => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: `Cannot find Student for student with id=${id}.`,
-          });
-        }
-        })
-      .catch((err) => {
-        res.status(500).send({message:err.message ||"Error retrieving Projects for student with id=" 
-        });
-    });
 };
 
-exports.findOne = (req, res) => {
-  const id = req.params.id;
+// ✅ Get all students
+exports.findAll = (req, res) => {
+  console.log("📥 Incoming request to fetch all students");
 
-  Student.findByPk(id)
-    .then((data) => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({
-          message: `Cannot find student with id=${id}.`,
-        });
-      }
+  Student.findAll()
+    .then(data => {
+      console.log("✅ Students retrieved:", data.length);
+      res.json(data);
     })
-    .catch((err) => {
+    .catch(err => {
+      console.error("❌ Error fetching students:", err);
       res.status(500).send({
-        message: "Error retrieving student with id=" + id,
+        message: err.message || "Error retrieving students.",
       });
     });
 };
 
-// exports.findByEmail = (req, res) => {
-//   const studentEmail = req.params.studentEmail;
+// ✅ Get a student by ID
+exports.findOne = (req, res) => {
+  const id = req.params.id;
 
-//   Student.findOne({
-//     where: {
-//       studentEmail: studentEmail,
-//     },
-//   })
-//     .then((data) => {
-//       if (data) {
-//         res.send(data);
-//       } else {
-//         res.send({ studentEmail: "not found" });
-//         /*res.status(404).send({
-//           message: `Cannot find student with email=${email}.`
-//         });*/
-//       }
-//     })
-//     .catch((err) => {
-//       res.status(500).send({
-//         message: "Error retrieving student with email=" + studentEmail,
-//       });
-//     });
-// };
+  Student.findByPk(id)
+    .then(data => {
+      if (data) {
+        res.json(data);
+      } else {
+        res.status(404).send({ message: `Student with ID ${id} not found.` });
+      }
+    })
+    .catch(err => {
+      console.error("❌ Error retrieving student:", err);
+      res.status(500).send({ message: "Error retrieving student with ID " + id });
+    });
+};
 
+// ✅ Update a student by ID
 exports.update = (req, res) => {
   const id = req.params.id;
 
   Student.update(req.body, {
     where: { id: id },
   })
-    .then((num) => {
+    .then(num => {
       if (num == 1) {
-        res.send({
-          message: "student was updated successfully.",
-        });
+        res.send({ message: "Student was updated successfully." });
       } else {
-        res.send({
-          message: `Cannot update student with id=${id}. Maybe student was not found or req.body is empty!`,
-        });
+        res.status(404).send({ message: `Cannot update student with ID=${id}. Maybe student not found or body is empty.` });
       }
     })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating student with id=" + id,
-      });
+    .catch(err => {
+      console.error("❌ Error updating student:", err);
+      res.status(500).send({ message: "Error updating student with ID " + id });
     });
 };
 
+// ✅ Delete a student by ID
 exports.delete = (req, res) => {
   const id = req.params.id;
 
   Student.destroy({
     where: { id: id },
   })
-    .then((num) => {
+    .then(num => {
       if (num == 1) {
-        res.send({
-          message: "student was deleted successfully!",
-        });
+        res.send({ message: "Student was deleted successfully!" });
       } else {
-        res.send({
-          message: `Cannot delete student with id=${id}. Maybe student was not found!`,
-        });
+        res.status(404).send({ message: `Cannot delete student with ID=${id}. Maybe student not found.` });
       }
     })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Student with id=" + id,
-      });
+    .catch(err => {
+      console.error("❌ Error deleting student:", err);
+      res.status(500).send({ message: "Could not delete student with ID=" + id });
     });
 };
 
-// Delete all People from the database.
+// ✅ Delete all students
 exports.deleteAll = (req, res) => {
   Student.destroy({
     where: {},
     truncate: false,
   })
-    .then((nums) => {
-      res.send({ message: `${nums} Students were deleted successfully!` });
+    .then(nums => {
+      res.send({ message: `${nums} students were deleted successfully!` });
     })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all people.",
-      });
+    .catch(err => {
+      console.error("❌ Error deleting all students:", err);
+      res.status(500).send({ message: err.message || "Error occurred while deleting all students." });
     });
 };
