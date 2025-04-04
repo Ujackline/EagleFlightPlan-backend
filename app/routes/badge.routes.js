@@ -11,6 +11,8 @@ module.exports = (app) => {
   
     // Retrieve a single badge with id
     router.get("/:id", [authenticate], badge.findOne);
+
+    router.get("/student/:studentId", badge.findAllByStudentId);
   
     // Update a badge with id
     router.put("/:id", [authenticate], badge.update);

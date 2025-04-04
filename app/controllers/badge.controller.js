@@ -66,6 +66,33 @@ exports.findOne = (req, res) => {
       });
     });
 };
+// Get all badges for a specific student
+exports.findAllByStudentId = (req, res) => {
+  const studentId = req.params.studentId;
+  
+  // Use Sequelize's association methods to fetch badges
+  db.sequelize.query(
+    `SELECT b.*, sb.DateAwarded 
+     FROM badges b
+     JOIN studentbadges sb ON b.id = sb.badgeId
+     WHERE sb.studentId = :studentId`,
+    {
+      replacements: { studentId: studentId },
+      type: db.sequelize.QueryTypes.SELECT
+    }
+  )
+  .then(data => {
+    res.send({
+      data: data,
+      message: `Found ${data.length} badges for student with id=${studentId}`
+    });
+  })
+  .catch(err => {
+    res.status(500).send({
+      message: err.message || `Error retrieving badges for student with id=${studentId}`
+    });
+  });
+};
 
 // Update a Badge by the id in the request
 exports.update = (req, res) => {
