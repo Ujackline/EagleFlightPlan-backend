@@ -14,6 +14,8 @@ module.exports = (app) => {
   
     // Update a student with id
     router.put("/:id", [authenticate], student.update);
+
+    router.get("/current", [authenticate], student.getCurrentStudent);
   
     // Delete a student with id
     router.delete("/:id", [authenticate], student.delete);

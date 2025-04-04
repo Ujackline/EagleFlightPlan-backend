@@ -20,7 +20,7 @@ app.options("*", cors());
 app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 // simple route
 app.get("/", (req, res) => {
