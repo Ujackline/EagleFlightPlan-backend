@@ -36,7 +36,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
 
-      TotalPoints: {
+      points: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -46,11 +46,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
       
-      }, 
-      points: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      }
     
 
     });
