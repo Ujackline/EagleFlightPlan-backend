@@ -21,6 +21,8 @@ exports.create = async (req, res) => {
     semester: req.body.semester,
     grad_semester: req.body.grad_semester,
     cliftonstrengths: req.body.cliftonstrengths,
+    flightPlanId: req.body.flightPlanId,
+    points: req.body.points,
   };
 
   try {
