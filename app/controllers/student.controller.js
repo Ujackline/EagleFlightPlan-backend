@@ -1,39 +1,45 @@
-const db = require("../models"); // importing the database in order to access it in our code
-const Student = db.Student; // picks/selects the student table in the database so we can use it 
-const Op = db.Sequelize.Op; // gives us access to operators for specific search purposes (genre pour kugabanya search ushatse umuntu)
+const db = require("../models");
+const Student = db.Student;
+const Op = db.Sequelize.Op;
 const FlightPlan = db.FlightPlan;
-// const  VALID_ROLES = ["student", "admin"]; 
-
-// request & response; creates a student object
+const Semester = db.Semester;
 
 exports.create = async (req, res) => {
   if (!req.body.fName) {
     return res.status(400).send({ message: "Name cannot be empty!" });
   }
 
-  const studentData = {
-    id: req.body.id,
-    fName: req.body.fName,
-    lName: req.body.lName,
-    email: req.body.email,
-    studentID: req.body.studentID,
-    major: req.body.major,
-    semester: req.body.semester,
-    grad_semester: req.body.grad_semester,
-    cliftonstrengths: req.body.cliftonstrengths,
-    flightPlanId: req.body.flightPlanId,
-    points: req.body.points,
-  };
-
   try {
+    // Find semester IDs based on semester names
+    const currentSemester = await Semester.findOne({
+      where: { name: req.body.semester }
+    });
+
+    const gradSemester = await Semester.findOne({
+      where: { name: req.body.grad_semester }
+    });
+
+    const studentData = {
+      id: req.body.id,
+      fName: req.body.fName,
+      lName: req.body.lName,
+      email: req.body.email,
+      studentID: req.body.studentID,
+      major: req.body.major,
+      currentSemesterId: currentSemester ? currentSemester.id : null,
+      gradSemesterId: gradSemester ? gradSemester.id : null,
+      cliftonstrengths: req.body.cliftonstrengths,
+      points: req.body.points || 0
+    };
+
     // 1. Create the student
     const student = await Student.create(studentData);
 
     // 2. Create a default FlightPlan for the student
     const flightPlan = await FlightPlan.create({
-      name: `Flight Plan - ${student.semester}`,
-      semester: student.semester,
-      grad_semester: student.grad_semester,
+      name: `Flight Plan - ${req.body.semester}`,
+      semester: req.body.semester,
+      grad_semester: req.body.grad_semester,
       studentId: student.id,
     });
 
@@ -43,10 +49,16 @@ exports.create = async (req, res) => {
       flightPlan,
     });
   } catch (err) {
-    console.error("Error creating student and flight plan:", err);
+    console.error("Detailed error creating student:", {
+      message: err.message,
+      name: err.name,
+      errors: err.errors // Sequelize validation errors
+    });
+
     return res.status(500).send({
       message: "Error creating student or flight plan",
       error: err.message,
+      details: err.errors
     });
   }
 };
