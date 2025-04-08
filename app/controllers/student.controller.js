@@ -15,11 +15,13 @@ const student = {
     id: req.body.id,
     fName: req.body.fName,
     lName: req.body.lName,
-    email: req.body.email,
-    studentID: req.body.studentID,
+   // email: req.body.email,
+    // studentID: req.body.studentID,
     major: req.body.major,
     grad_semester: req.body.grad_semester,
     cliftonstrengths: req.body.cliftonstrengths,
+    flightPlanId: req.body.flightPlanId,
+     points: req.body.points,
   };
   
   Student.create(student)

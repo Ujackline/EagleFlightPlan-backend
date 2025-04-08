@@ -2,12 +2,14 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+// const accommodationRoutes = require('./app/routes/accommodations');
+
 
 const app = express();
 
 const db = require("./app/models");
 
-db.sequelize.sync({force: true});
+db.sequelize.sync();
 
 var corsOptions = {
   origin: "http://localhost:8081",
@@ -29,15 +31,19 @@ app.get("/", (req, res) => {
 
 require("./app/routes/auth.routes.js")(app);
 require("./app/routes/user.routes")(app);
-require("./app/routes/experience.routes.js")(app);
 require("./app/routes/admin.routes.js")(app);
 require("./app/routes/award.routes.js")(app);
 require("./app/routes/badge.routes.js")(app);
 require("./app/routes/event.routes.js")(app);
+require("./app/routes/experience.routes.js")(app);
 require("./app/routes/task.routes.js")(app);
 require("./app/routes/student.routes.js")(app);
 require("./app/routes/flightplan.routes.js")(app);
+require('./app/routes/email.routes.js'); // Just requiring the file, no explicit route registration here
 
+
+const emailRoutes = require('./app/routes/email.routes.js');
+app.use("/email", emailRoutes);  // Registering "/email/request"
 
 
 // set port, listen for requests
@@ -49,3 +55,14 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 module.exports = app;
+
+
+
+
+//const dotenv = require('dotenv');
+
+//dotenv.config();
+
+
+
+

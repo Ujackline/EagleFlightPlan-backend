@@ -53,10 +53,12 @@ module.exports = (app) => {
   // Delete a task with id
   router.delete("/:id", [authenticate], task.delete);
 
+  router.post("/complete", task.completeTask);
+
   // Delete all task
   router.delete("/", [authenticate], task.deleteAll);
 
-  router.put("/:id/complete", [authenticate], task.completeTask); 
+  // router.put("/:id/complete", [authenticate], task.completeTask); 
 
   app.use("/flight-plan-t9/task", router);
 };
