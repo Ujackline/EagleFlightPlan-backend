@@ -1,112 +1,77 @@
+
 // const db = require("../models");
 // const Task = db.Task;
-// const Op = db.Sequelize.Op;
 
-
-// // Create and Save a new Task
-// exports.create = (req, res) => {
-//   // Validate request
-//   if (!req.body.taskName) {
-//     console.log(req.body);
-//     return res.status(400).send({ message: "Job title, company, start date, and resume ID are required!" });
-//   }
-
-
-//   // Create an Task object
-//   const task = {
-//     category: req.body.category,
-//     id: req.body.id,
-//     taskName: req.body.taskName,
-//     description: req.body.description,
-//     NumOfPoints: req.body.NumOfPoints,
-//     Rationale: req.body.Rationale,
-//     grad_semester: req.body.grad_semester,
-//     scheduling_type: req.body.scheduling_type,
-//     reflection_required: req.body.reflection_required,
-//     //resumeId: req.body.resumeId,
-//     majors: req.body.majors, // Fixed spelling
-//     CliftonStrengths: req.body.CliftonStrengths
-//   };
-
-
-//   // Save Task in the database
-//   Task.create(task)
-//     .then(data => res.send(data))
-//     .catch(err => {
-//       console.error("Error creating Task:", err);
-//       console.log(task);
-//       res.status(500).send({
-//         message: err.message || "Some error occurred while creating the Task."
-//       });
-//     });
-// };
-// // continue ici
-// // Retrieve all Task entries for a specific Resume
-// // exports.findAll = (req, res) => {
-// //   const id = req.params.id;
-// //   Task.findAll({ where: { id: id } })
-// //     .then(data => res.send(data))
-// //     .catch(err => {
-// //       console.error("Error retrieving Task:", err);
-// //       res.status(500).send({
-// //         message: err.message || "Error retrieving Task."
-// //       });
-// //     });
-// // };
-
-
-// // exports.findAll = (req, res) => {
-// //   const id = req.params.id || req.query.id || req.body.id;
-
-
-// //   if (!id) {
-// //     return res.status(400).send({ message: "ID parameter is missing." });
-// //   }
-
-
-// //   Task.findAll({ where: { resumeId: id } }) // Use the correct field
-// //     .then(data => res.send(data))
-// //     .catch(err => {
-// //       console.error("Error retrieving Task:", err);
-// //       res.status(500).send({
-// //         message: err.message || "Error retrieving Task."
-// //       });
-// //     });
-// // };
-// exports.findAll = (req, res) => {
-//   Task.findAll()  // No filtering by ID
-//     .then(data => res.send(data))
-//     .catch(err => {
-//       console.error("Error retrieving tasks:", err);
-//       res.status(500).send({
-//         message: err.message || "Error retrieving tasks."
-//       });
-//     });
-// };
+const db = require("../models");
+const Task = db.Task;
+const StudentTask = db.StudentTask;
+const Student = db.Student;
+const Admin = db.Admin;
+const { Op } = db.Sequelize;
 
 
 
 
 
 
-// // Find a single Task with an id
-// exports.findOne = (req, res) => {
-//   const id = req.params.id;
-//   Task.findByPk(id)
-//     .then(data => {
-//       if (data) {
-//         res.send(data);
-//       } else {
-//         res.status(404).send({ message: `Cannot find Task with id=${id}.` });
-//       }
-//     })
-//     .catch(err => {
-//       console.error("Error retrieving Task with id:", id, err);
-//       res.status(500).send({
-//         message: err.message || `Error retrieving Task with id=${id}`
-//       });
-//     });
-// };
+  const task = {
+    category: req.body.category,
+    id: req.body.id,
+    taskName: req.body.name,
+    description: req.body.description,
+    Points: req.body.points,
+    Rationale: req.body.Rationale,
+    semester: req.body.semester,
+    scheduling_type: req.body.scheduling_type,
+    reflection_required: req.body.reflection_required,
+    //resumeId: req.body.resumeId,
+    majors: req.body.majors, // Fixed spelling
+    CliftonStrengths: req.body.CliftonStrengths
+  };
+
+
+  // Save Task in the database
+  Task.create(task)
+    .then(data => res.send(data))
+    .catch(err => {
+      console.error("Error creating Task:", err);
+      console.log(task);
+      res.status(500).send({
+        message: err.message || "Some error occurred while creating the Task."
+      });
+    });
+};
+
+exports.findAll = (req, res) => {
+  Task.findAll()  // No filtering by ID
+    .then(data => res.send(data))
+    .catch(err => {
+      console.error("Error retrieving tasks:", err);
+      res.status(500).send({
+        message: err.message || "Error retrieving tasks."
+      });
+    });
+};
+
+// Find a single Task with an id
+exports.findOne = (req, res) => {
+  const id = req.params.id;
+  Task.findByPk(id)
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({ message: `Cannot find Task with id=${id}.` });
+      }
+    })
+    .catch(err => {
+      console.error("Error retrieving Task with id:", id, err);
+      res.status(500).send({
+        message: err.message || `Error retrieving Task with id=${id}`
+      });
+    });
+};
+
 
 
 // // Update an Task by the id in the request
@@ -389,6 +354,7 @@ exports.findAll = (req, res) => {
   }
 };
 
+
  // Delete an Task with the specified id in the request
  exports.delete = (req, res) => {
    const id = req.params.id;
@@ -422,3 +388,83 @@ exports.findAll = (req, res) => {
        });
      });
  };
+
+exports.markAsComplete = async (req, res) => {
+  try {
+    const task = await Task.findByPk(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    task.status = "Pending";
+    await task.save();
+
+    await StudentTask.create({
+      studentId: req.user.id,
+      taskId: task.id,
+      status: "pending",
+      CompletionDate: new Date()
+    });
+
+    const admins = await Admin.findAll();
+
+    for (const admin of admins) {
+      await notificationController.sendNotification(
+        admin.id,
+        `Task "${task.name}" was marked as complete and needs review.`,
+        "task_approval",
+        { taskId: task.id }
+      );
+    }
+
+    res.json({ message: "Task marked as Pending", task });
+  } catch (error) {
+    console.error("Error marking task complete:", error);
+    res.status(500).json({ message: "Error updating task", error });
+  }
+};
+
+exports.approveTask = async (req, res) => {
+  try {
+    const task = await Task.findByPk(req.params.id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.status = "Approved";
+    task.approvedBy = req.body.approvedBy || "Admin";
+    task.completionDate = new Date();
+    await task.save();
+
+    const studentTask = await StudentTask.findOne({
+      where: {
+        taskId: task.id,
+        status: { [Op.not]: "completed" }
+      }
+    });
+
+    if (!studentTask) return res.status(404).json({ message: "No student-task record found" });
+
+    studentTask.status = "completed";
+    studentTask.CompletionDate = new Date();
+    await studentTask.save();
+
+    res.json({ message: "Task approved and marked complete", task });
+  } catch (error) {
+    console.error("Error approving task:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+exports.rejectTask = async (req, res) => {
+  try {
+    const task = await Task.findByPk(req.params.id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.status = "Rejected";
+    await task.save();
+
+    res.json({ message: "Task rejected successfully", task });
+  } catch (error) {
+    res.status(500).json({ message: "Error rejecting task", error });
+  }
+};
+

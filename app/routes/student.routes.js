@@ -14,12 +14,18 @@ module.exports = (app) => {
   
     // Update a student with id
     router.put("/:id", [authenticate], student.update);
+
+    router.get("/current", [authenticate], student.getCurrentStudent);
   
     // Delete a student with id
     router.delete("/:id", [authenticate], student.delete);
   
     // Delete all students
     router.delete("/", [authenticate], student.deleteAll);
+      // ✅ Point-related routes
+    router.get("/:id/points", [authenticate], student.getPoints);
+    router.patch("/:id/addPoints", [authenticate], student.addPoints);
+    router.patch("/:id/redeemPoints", [authenticate], student.redeemPoints);
   
     app.use("/flight-plan-t9/student", router);
   };

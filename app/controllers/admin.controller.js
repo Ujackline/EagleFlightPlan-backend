@@ -45,7 +45,7 @@ exports.create = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ['userId', 'fName', 'lName', 'email', 'role', 'isAdmin'],
+      attributes: ['id', 'fName', 'lName', 'email', 'role', 'isAdmin'],
       order: [['createdAt', 'DESC']]
     });
     res.send(users);
@@ -58,7 +58,7 @@ exports.getAllUsers = async (req, res) => {
 
 // Matches updateUserRole(userId, role) in adminServices.js
 exports.updateUserRole = async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.params.id; //  match route
   const { role } = req.body;
 
   if (!role || !['admin', 'student'].includes(role)) {
@@ -70,16 +70,14 @@ exports.updateUserRole = async (req, res) => {
   try {
     const result = await User.update(
       {
-        role: role,
+        role,
         isAdmin: role === 'admin'
       },
       { where: { id: userId } }
     );
 
     if (result[0] === 1) {
-      res.send({
-        message: "User role was updated successfully."
-      });
+      res.send({ message: "User role was updated successfully." });
     } else {
       res.status(404).send({
         message: `Cannot update role for user with id=${userId}. User not found!`
