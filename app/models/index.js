@@ -46,14 +46,18 @@ db.Notification= require("./notification.model.js")(sequelize, Sequelize);
 // Associations
 
 
+// Student - FlightPlan (One-to-Many)
+db.Student.hasMany(db.FlightPlan, { as: "flightPlans", foreignKey: "studentId", onDelete: "CASCADE" });
+db.FlightPlan.belongsTo(db.Student, { as: "student", foreignKey: "studentId" });
 
 // FlightPlan - Experience (Many-to-Many)
 db.FlightPlan.belongsToMany(db.Experience, { through: db.FlightPlanExperience, as: "experiences", foreignKey: "flightPlanId",});
 db.Experience.belongsToMany(db.FlightPlan, {through: db.FlightPlanExperience, as: "flightPlans", foreignKey: "experienceId",});
 
-// // FlightPlan - Task (Many-to-Many)
-// db.FlightPlan.belongsToMany(db.Task, {through: db.FlightPlanTask, as: "tasks", foreignKey: "flightPlanId"});
-// db.Task.belongsToMany(db.FlightPlan, {through: db.FlightPlanTask, as: "flightPlans",foreignKey: "taskId"});
+
+// FlightPlan - Task (Many-to-Many)
+db.FlightPlan.belongsToMany(db.Task, {through: db.FlightPlanTask, as: "tasks", foreignKey: "flightPlanId"});
+db.Task.belongsToMany(db.FlightPlan, {through: db.FlightPlanTask, as: "flightPlans",foreignKey: "taskId"});
 
 
 // Student - Experience (Many-to-Many)
@@ -102,8 +106,5 @@ db.Experience.belongsTo(db.Event, { as: "event", foreignKey: "eventId", onDelete
 db.Admin.hasMany(db.Event, { as: "events", foreignKey: "adminId", onDelete: "CASCADE" });
 db.Event.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
 
-// // Admin - FlightPlan (One-to-Many)
-// db.Admin.hasMany(db.FlightPlan, { as: "flightPlans", foreignKey: "adminId", onDelete: "CASCADE" });
-// db.FlightPlan.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
 
 module.exports = db;
