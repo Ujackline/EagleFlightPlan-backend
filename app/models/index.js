@@ -102,8 +102,5 @@ db.Experience.belongsTo(db.Event, { as: "event", foreignKey: "eventId", onDelete
 db.Admin.hasMany(db.Event, { as: "events", foreignKey: "adminId", onDelete: "CASCADE" });
 db.Event.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
 
-// // Admin - FlightPlan (One-to-Many)
-// db.Admin.hasMany(db.FlightPlan, { as: "flightPlans", foreignKey: "adminId", onDelete: "CASCADE" });
-// db.FlightPlan.belongsTo(db.Admin, { as: "admin", foreignKey: "adminId", onDelete: "CASCADE" });
 
 module.exports = db;
