@@ -21,6 +21,8 @@ exports.create = async (req, res) => {
     semester: req.body.semester,
     grad_semester: req.body.grad_semester,
     cliftonstrengths: req.body.cliftonstrengths,
+    flightPlanId: req.body.flightPlanId,
+    points: req.body.points,
   };
 
   try {
@@ -177,7 +179,62 @@ exports. redeemPoints = async (req, res) => {
 };
 
 
-
+// Get current logged-in student from session/token
+exports.getCurrentStudent = (req, res) => {
+  // Check if user is authenticated
+  if (req.user) {
+    // If user data is stored in req.user from your auth middleware
+    Student.findByPk(req.user.id)
+      .then(data => {
+        if (data) {
+          res.send(data);
+        } else {
+          res.status(404).send({
+            message: "Current user not found in database"
+          });
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: err.message || "Error retrieving current user"
+        });
+      });
+  } else {
+    // If you're using JWT tokens stored in the request
+    const token = req.headers["x-access-token"] || req.headers.authorization;
+    
+    if (!token) {
+      return res.status(401).send({
+        message: "No authentication token provided"
+      });
+    }
+    
+    try {
+      // You'll need to implement this function based on your auth system
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      Student.findByPk(decoded.id)
+        .then(data => {
+          if (data) {
+            res.send(data);
+          } else {
+            res.status(404).send({
+              message: "Current user not found in database"
+            });
+          }
+        })
+        .catch(err => {
+          res.status(500).send({
+            message: err.message || "Error retrieving current user"
+          });
+        });
+    } catch (err) {
+      return res.status(401).send({
+        message: "Invalid or expired token"
+      });
+    }
+  }
+};
 exports.delete = (req, res) => {
   const id = req.params.id;
 

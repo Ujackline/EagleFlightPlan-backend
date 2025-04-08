@@ -19,6 +19,7 @@ exports.create = (req, res) => {
     location: req.body.location,
     semester: req.body.semester || "Spring 2024", // Add default semester if not provided
     major: req.body.major,
+    semester: req.body.semester,
   };
 
   // Save Event in the database
