@@ -30,6 +30,7 @@ jobs:
           echo DB_PW = "$DB_PW" >> .env
           echo DB_USER = "$DB_USER" >> .env
           echo DB_NAME = "$DB_NAME" >> .env
+          echo PORT = "3039" >> .env
           echo CLIENT_ID = "$CLIENT_ID" >> .env
           echo CLIENT_SECRET = "$CLIENT_SECRET" >> .env
 
@@ -43,7 +44,7 @@ jobs:
           SOURCE: "deploy/"
           REMOTE_HOST: "flightplan.eaglesoftwareteam.com"
           REMOTE_USER: ubuntu
-          TARGET: "nodeapps/flightplan-backend"
+          TARGET: "nodeapps/2025/flight-plan/t9"
       - name: Execute SSH commmands on remote server
         uses: JimCronqvist/action-ssh@master
         env:
@@ -53,7 +54,7 @@ jobs:
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
           debug: false
           command: |
-            cd nodeapps/flight-plan-t9-backend
+            cd nodeapps/2025/flight-plan/t9
             npm install
             sudo systemctl stop flight-plan-t9-backend
             sudo cp flight-plan-t9-backend.service /lib/systemd/system/flight-plan-t9-backend.service

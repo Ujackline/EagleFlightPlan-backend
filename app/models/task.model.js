@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
       primaryKey: true,
       autoIncrement: true
     },
-    name: {
+    taskName: {
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -27,15 +27,33 @@ module.exports = (sequelize, Sequelize) => {
         key: 'id'
       }
     },
-    cliftonstrengths: {
-      type: Sequelize.STRING
-    },
-    points: {
+
+
+    CliftonStrengths: {
+
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: true,
     },
-    major: {
-      type: Sequelize.STRING
+  
+    completed: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false, // Set default to false
+    },
+    NumOfPoints: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0, // Default 0 points
+    },
+
+
+    // points: {
+    //   type: Sequelize.INTEGER,
+    //   defaultValue: 0, // Default 0 points
+    // },
+
+    majors: {
+
+      type: Sequelize.STRING,
+      allowNull: true,
     },
     badge: {
       type: Sequelize.STRING

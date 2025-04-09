@@ -21,6 +21,7 @@ exports.create = (req, res) => {
     type: req.body.type,
     badge: req.body.badge,
     major: req.body.major,
+    semester: req.body.semester,
     cliftonStrength: req.body.cliftonStrength,
     reflectionRequired: req.body.reflectionRequired || false,
     points: req.body.points || 0,

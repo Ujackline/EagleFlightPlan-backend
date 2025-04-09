@@ -18,6 +18,7 @@ exports.create = (req, res) => {
     end_time: req.body.end_time,
     location: req.body.location,
     major: req.body.major,
+    semester: req.body.semester,
   };
 
   // Save Event in the database
