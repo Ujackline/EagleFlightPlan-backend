@@ -1,50 +1,44 @@
 const db = require("../models");
 const Event = db.Event;
-const Op = db.Sequelize.Op;
 
 // Create and Save a new Event
 exports.create = (req, res) => {
   // Validate request
-  if (!req.body.eventName || !req.body.id) {
-    console.log(req.body);
-    return res.status(400).send({ message: "Event name and user ID are required!" });
+  if (!req.body.name || !req.body.date) {
+    return res.status(400).send({ message: "Event name and date are required!" });
   }
 
   // Create an Event object
   const event = {
-    eventName: req.body.eventName,
-    id: req.body.id,
-    // adminID: req.body.adminID,
+    name: req.body.name,
+    date: req.body.date,
     description: req.body.description,
-    experience: req.body.experience,
-    eventType: req.body.eventType, // je fais career_fair?
-    eventDate: req.body.eventDate, 
-    startTime: req.body.startTime,
-    endTime: req.body.endTime,
+    event_type: req.body.event_type,
+    start_time: req.body.start_time,
+    end_time: req.body.end_time,
     location: req.body.location,
-    attendanceType: req.body.attendanceType,
-    registration: req.body.registration,
-    completionType: req.body.completionType,
-
+    major: req.body.major,
+    semester: req.body.semester,
   };
 
   // Save Event in the database
-  Eventvent.create(event)
+  Event.create(event)
     .then(data => res.send(data))
     .catch(err => {
       console.error("Error creating event:", err);
-      console.log(Event);
       res.status(500).send({
         message: err.message || "Some error occurred while creating the event."
       });
     });
 };
 
-// Retrieve all Events for a specific User
+// Retrieve all Events
 exports.findAll = (req, res) => {
-  const id = req.params.id;
-  Event.findAll({ where: { id: id} })
-    .then(data => res.send(data))
+  Event.findAll() // Fetch all events
+    .then(data => {
+      console.log("Fetched Events from Database:", data); // Debugging
+      res.send(data);
+    })
     .catch(err => {
       console.error("Error retrieving Events:", err);
       res.status(500).send({
@@ -72,13 +66,13 @@ exports.findOne = (req, res) => {
     });
 };
 
-// Update a Event by the id in the request
+// Update an Event by ID
 exports.update = (req, res) => {
   const id = req.params.id;
 
   // Validate request
-  if (!req.body.eventName || !req.body.category) {
-    return res.status(400).send({ message: "Event name and category are required for updating!" });
+  if (!req.body.name || !req.body.date) {
+    return res.status(400).send({ message: "Event name and date are required for updating!" });
   }
 
   Event.update(req.body, { where: { id: id } })
@@ -99,10 +93,10 @@ exports.update = (req, res) => {
     });
 };
 
-// Delete a Event with the specified id in the request
+// Delete an Event with the specified id
 exports.delete = (req, res) => {
   const id = req.params.id;
-  Event.destroy({ where: { id: id} })
+  Event.destroy({ where: { id: id } })
     .then(num => {
       if (num == 1) {
         res.send({ message: "Event was deleted successfully!" });
@@ -120,7 +114,7 @@ exports.delete = (req, res) => {
     });
 };
 
-// Delete all Events from the database.
+// Delete all Events from the database
 exports.deleteAll = (req, res) => {
   Event.destroy({ where: {}, truncate: false })
     .then(nums => res.send({ message: `${nums} Events were deleted successfully!` }))

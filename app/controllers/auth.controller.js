@@ -1,8 +1,10 @@
 const db = require("../models");
 const authconfig = require("../config/auth.config");
 const User = db.User;
-const Session = db.Session;
 const Admin = db.Admin;
+const Session = db.Session;
+const Student = db.Student;
+
 const Op = db.Sequelize.Op;
 
 const { google } = require("googleapis");
@@ -60,7 +62,6 @@ exports.login = async (req, res) => {
   let user = {};
   let session = {};
 
-
   await User.findOne({
     where: {
       email: email,
@@ -75,8 +76,8 @@ exports.login = async (req, res) => {
           fName: firstName,
           lName: lastName,
           email: email,
-          role: 'Admin',
-          //isAdmin: false
+          role: 'student',
+          isAdmin: false
         };
       }
     })
@@ -85,34 +86,23 @@ exports.login = async (req, res) => {
     });
 
 
-    
-
-  //  //  If user is an admin, ensure they are also in the Admin table
-  //  if (user.role === "admin") {
-  //   const existingAdmin = await Admin.findOne({ where: { email: user.email } });
-
-  //   if (!existingAdmin) {
-  //     console.log(" Adding admin to Admin table...");
-  //     await Admin.create({
-  //       email: user.email,
-  //       fName: user.fName,
-  //       lName: user.lName,
-  //       userId: user.id,  //  Link admin to userId
-  //     });
-  //   }
-  // }
-
-
-
-
   // this lets us get the user id
   if (user.id === undefined) {
     console.log("need to get user's id");
     console.log(user);
     await User.create(user)
-      .then((data) => {
+      .then(async (data) => {
         console.log("user was registered");
         user = data.dataValues;
+        if(user.isAdmin){
+          await Admin.create({
+            fName: user.fName,
+            lName: user.lName,
+            email: user.email,
+            role: user.role,
+          });
+          
+        }
         // res.send({ message: "User was registered successfully!" });
       })
       .catch((err) => {
@@ -120,7 +110,7 @@ exports.login = async (req, res) => {
       });
   } else {
     console.log(user);
-    // doing this to ensure that the user's name is the one listed with Google
+
     user.fName = firstName;
     user.lName = lastName;
     console.log(user);
@@ -138,6 +128,20 @@ exports.login = async (req, res) => {
         console.log("Error updating User with id=" + user.id + " " + err);
       });
   }
+
+
+
+  let needsProfile = false;
+
+    if (user.role === 'student') {
+      const existingStudent = await Student.findOne({ where: { id: user.id } });
+      console.log("ID here" , user.id)
+      if (!existingStudent) {
+        needsProfile = true;
+      }
+    }
+
+
 
   // try to find session first
 
@@ -173,6 +177,7 @@ exports.login = async (req, res) => {
           //reset session to be null since we need to make another one
           session = {};
         } else {
+
           // if the session is still valid, then send info to the front end
           let userInfo = {
             email: user.email,
@@ -180,6 +185,9 @@ exports.login = async (req, res) => {
             lName: user.lName,
             userId: user.id,
             token: session.token,
+            role: user.role,
+            isAdmin: user.isAdmin,
+            needsProfile
             // refresh_token: user.refresh_token,
             // expiration_date: user.expiration_date
           };
@@ -198,15 +206,25 @@ exports.login = async (req, res) => {
 
   if (session.id === undefined) {
     // create a new Session with an expiration date and save to database
-    let token = jwt.sign({ id: email }, authconfig.secret, {
-      expiresIn: 86400,
-    });
+    let token = jwt.sign(
+      { 
+        id: email,
+        role: user.role,
+        isAdmin: user.isAdmin,
+        userId: user.id  // Add user_id to token
+      }, 
+      authconfig.secret, 
+      {
+        expiresIn: 86400,
+      }
+    );
+    
     let tempExpirationDate = new Date();
     tempExpirationDate.setDate(tempExpirationDate.getDate() + 1);
+    
     const session = {
       token: token,
       email: email,
-      userId: user.id,
       expirationDate: tempExpirationDate,
     };
 
@@ -219,12 +237,26 @@ exports.login = async (req, res) => {
           email: user.email,
           fName: user.fName,
           lName: user.lName,
-          userId: user.id,
+          id: user.id,  // Changed from userId to user_id
+          role: user.role,
+          isAdmin: user.isAdmin,
           token: token,
-          // refresh_token: user.refresh_token,
-          // expiration_date: user.expiration_date
+          needsProfile
+
         };
-        console.log(userInfo);
+
+        
+        // Add role-specific data to response
+        if (user.role === 'admin') {
+          userInfo.adminPrivileges = true;
+          userInfo.adminDashboardUrl = '/admin/AdminDashboard';
+        } 
+         
+        else {
+          userInfo.studentDashboardUrl = '/student/StudentDashboard';
+        }
+
+        console.log("Login successful:", userInfo);
         res.send(userInfo);
       })
       .catch((err) => {

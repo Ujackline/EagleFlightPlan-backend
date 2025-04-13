@@ -1,62 +1,175 @@
+// const db = require("../models");
+// const Session = db.Session;
+// const User = db.User;
+// const Admin = db.Admin; //  Import Admin model
+
+// authenticate = (req, res, next) => {
+//   let token = null;
+//   console.log("authenticate middleware triggered");
+
+//   const authHeader = req.get("authorization");
+
+//   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+//     return res.status(401).send({ message: "Unauthorized! No Auth Header" });
+//   }
+
+//   token = authHeader.slice(7); // "Bearer <token>"
+
+//   Session.findOne({ where: { token: token } })
+//     .then((session) => {
+//       if (!session) {
+//         return res.status(401).send({ message: "Unauthorized! Invalid Token" });
+//       }
+
+//       if (session.expirationDate < Date.now()) {
+//         return res.status(401).send({
+//           message: "Unauthorized! Expired Token, Logout and Login again",
+//         });
+//       }
+
+//       return User.findOne({ where: { email: session.email } });
+//     })
+//     .then(async (user) => {
+//       if (!user) {
+//         return res.status(401).send({ message: "Unauthorized! User not found" });
+//       }
+
+//       console.log("Authenticated User:", user.email);
+
+//       //Attach user info to req.user
+//       req.user = {
+//         id: user.id,
+//         fName: user.fName,
+//         lName: user.lName,
+//         email: user.email,
+//         role: user.role
+//       };
+
+//       // If user is an admin, ensure they're also in the admins table
+//       if (user.role === "admin") {
+//         const existingAdmin = await Admin.findOne({ where: { id: user.id } });
+
+//         if (!existingAdmin) {
+//           console.log(`🔹 Admin not found in DB, adding: ${user.email}`);
+
+//           await Admin.create({
+//             id: user.id,
+//             fName: user.fName,
+//             lName: user.lName,
+//             email: user.email,
+//             role: "admin"
+//           });
+
+//           console.log(`Admin inserted into admins table: ${user.email}`);
+//         }
+//       }
+
+//       next(); // Proceed to next middleware/controller
+//     })
+//     .catch((err) => {
+//       console.error("Authentication Error:", err.message);
+//       res.status(500).send({ message: "Internal Server Error" });
+//     });
+
+
+    
+// };
+
+// const auth = {
+//   authenticate: authenticate,
+// };
+
+// module.exports = auth;
+
 const db = require("../models");
 const Session = db.Session;
 const User = db.User;
+const Admin = db.Admin; //  Import Admin model
 
-const authenticate = async (req, res, next) => {
-  try {
-    let token = null;
-    console.log("Authenticating...");
+authenticate = (req, res, next) => {
+  let token = null;
+  console.log("authenticate middleware triggered");
 
-    // Extract token from Authorization header
-    let authHeader = req.get("authorization");
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.slice(7);
-    } else {
-      return res.status(401).json({ message: "Unauthorized! No Auth Header" });
-    }
+  const authHeader = req.get("authorization");
 
-    // Check session in the database (Old logic)
-    const session = await Session.findOne({ where: { token } });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send({ message: "Unauthorized! No Auth Header" });
+  }
 
-    if (!session) {
-      return res.status(401).json({ message: "Session not found! Please log in again." });
-    }
+  token = authHeader.slice(7); // "Bearer <token>"
 
-    // Check if session is expired
-    if (session.expirationDate < Date.now()) {
-      return res.status(401).json({ message: "Unauthorized! Expired Token, Logout and Login again" });
-    }
+  Session.findOne({ where: { token: token } })
+    .then((session) => {
+      if (!session) {
+        return res.status(401).send({ message: "Unauthorized! Invalid Token" });
+      }
 
-    // Attach user details to request
-    req.user = session.id; // Assuming session table has a `userId`
+      if (session.expirationDate < Date.now()) {
+        return res.status(401).send({
+          message: "Unauthorized! Expired Token, Logout and Login again",
+        });
+      }
+
+      return User.findOne({ where: { email: session.email } });
+    })
+    .then(async (user) => {
+      if (!user) {
+        return res.status(401).send({ message: "Unauthorized! User not found" });
+      }
+
+      console.log("Authenticated User:", user.email);
+
+      //Attach user info to req.user
+      req.user = {
+        id: user.id,
+        fName: user.fName,
+        lName: user.lName,
+        email: user.email,
+        role: user.role
+      };
+
+      // If user is an admin, ensure they're also in the admins table
+      if (user.role === "admin") {
+        const existingAdmin = await Admin.findOne({ where: { id: user.id } });
+
+        if (!existingAdmin) {
+          console.log(`🔹 Admin not found in DB, adding: ${user.email}`);
+
+          await Admin.create({
+            id: user.id,
+            fName: user.fName,
+            lName: user.lName,
+            email: user.email,
+            role: "admin"
+          });
+
+          console.log(`Admin inserted into admins table: ${user.email}`);
+        }
+      }
+
+      next(); // Proceed to next middleware/controller
+    })
+    .catch((err) => {
+      console.error("Authentication Error:", err.message);
+      res.status(500).send({ message: "Internal Server Error" });
+    });
+
+
+    
+};
+
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
     next();
-  } catch (error) {
-    console.error("Authentication error:", error);
-    res.status(500).json({ message: "Internal server error." });
+  } else {
+    res.status(403).json({ error: "Access denied. Admins only." });
   }
 };
 
-const isAdmin = async (req, res, next) => {
-  try {
-    if (!req.user) {
-      return res.status(403).json({ message: "Access denied! No user found." });
-    }
+const auth = {
+  authenticate: authenticate,
+  isAdmin: isAdmin,
 
-    // Fetch user from database
-    const user = await User.findOne({ where: { id: req.user } });
-
-    if (!user || user.role !== "admin") {
-      return res.status(403).json({ message: "Access denied! Admins only." });
-    }
-
-    next();
-  } catch (error) {
-    console.error("Admin check error:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
 };
 
-module.exports = {
-  authenticate,
-  isAdmin,
-};
+module.exports = auth;

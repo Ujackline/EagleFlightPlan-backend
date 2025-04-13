@@ -20,7 +20,7 @@ app.options("*", cors());
 app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 // simple route
 app.get("/", (req, res) => {
@@ -37,7 +37,8 @@ require("./app/routes/event.routes.js")(app);
 require("./app/routes/task.routes.js")(app);
 require("./app/routes/student.routes.js")(app);
 require("./app/routes/flightplan.routes.js")(app);
-
+require("./app/routes/notification.routes.js")(app);
+require("./app/routes/studentworker.routes.js")(app);
 
 
 // set port, listen for requests
