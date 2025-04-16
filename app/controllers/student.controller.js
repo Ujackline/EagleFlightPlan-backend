@@ -54,9 +54,10 @@ exports.create = async (req, res) => {
 
 exports.findAll = (req, res) => {
     const id = req.params.id;
-    Student.findAll({where: {id: id}})
+    Student.findAll()
         .then((data) => {
         if (data) {
+          console.log("daniel" + data);
           res.send(data);
         } else {
           res.status(404).send({
