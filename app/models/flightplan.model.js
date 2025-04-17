@@ -27,14 +27,7 @@ module.exports = (sequelize, Sequelize) => {
     }
   });
 
-  // Add associations
-  FlightPlan.associate = (models) => {
-    FlightPlan.belongsToMany(models.Task, {
-      through: models.FlightPlanTask,
-      as: 'tasks',
-      foreignKey: 'flightPlanId'
-    });
-  };
+
 
   return FlightPlan;
 };

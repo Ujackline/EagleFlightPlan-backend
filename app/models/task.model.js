@@ -18,7 +18,7 @@ module.exports = (sequelize, Sequelize) => {
     task_type: {
       type: Sequelize.STRING
     },
-    // Remove the semester column
+   
     semesterId: {
       type: Sequelize.INTEGER,
       allowNull: true,
