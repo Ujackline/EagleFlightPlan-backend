@@ -12,18 +12,18 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       status: {
-        type: Sequelize.STRING,
-        allowNull: false,
+        type: Sequelize.ENUM('Incomplete', 'Pending', 'Approved', 'Rejected'),
+        defaultValue: 'Incomplete'
       },
 
       CompletionDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
 
       points: {
-        type: Sequelize.STRING,
-        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
 
     });

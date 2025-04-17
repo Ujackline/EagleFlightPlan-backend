@@ -1,36 +1,31 @@
 module.exports = (sequelize, Sequelize) => {
-
   const Task = sequelize.define("task", {
     id: {
       type: Sequelize.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true
     },
     taskName: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
-
-
     category: {
-      type: Sequelize.STRING,
-      allowNull: true,
+      type: Sequelize.STRING
     },
-       
     description: {
-      type: Sequelize.STRING,
-      allowNull: true,
+      type: Sequelize.STRING
     },
-
-
     task_type: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING
+    },
+   
+    semesterId: {
+      type: Sequelize.INTEGER,
       allowNull: true,
-    },  
-
-    semester: {
-      type: Sequelize.STRING,
-      allowNull: false,
+      references: {
+        model: 'semesters',
+        key: 'id'
+      }
     },
 
 
@@ -60,29 +55,30 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
-
     badge: {
-      type: Sequelize.STRING,
-      allowNull: true,
-  },
+      type: Sequelize.STRING
+    },
     status: {
-        type: Sequelize.ENUM("Incomplete", "Pending", "Approved", "Rejected"),
-        allowNull: false,
-        defaultValue: "Incomplete",
+      type: Sequelize.ENUM('Incomplete', 'Pending', 'Approved', 'Rejected'),
+      defaultValue: 'Incomplete'
     },
     approvedBy: {
-        type: Sequelize.STRING, // Can store an admin's name or ID
-        allowNull: true,
+      type: Sequelize.STRING
     },
     completionDate: {
-        type: Sequelize.DATE,
-        allowNull: true,
-    },
-
-
+      type: Sequelize.DATE
+    }
+  }, {
+    // Add any additional model options if needed
   });
+
+  // Add associations
+  Task.associate = (models) => {
+    Task.belongsTo(models.Semester, {
+      foreignKey: 'semesterId',
+      as: 'semesterInfo'
+    });
+  };
 
   return Task;
 };
-
-
