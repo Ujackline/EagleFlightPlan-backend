@@ -3,35 +3,27 @@ const Task = db.Task;
 const StudentTask = db.StudentTask;
 const Student = db.Student;
 const Admin = db.Admin;
+const Semester = db.Semester; 
 const { Op } = db.Sequelize;
-const notificationController = require('./notification.controller'); // or wherever you have it
-
 
 // Create and Save a new Task
 exports.create = (req, res) => {
   // Validate request
   if (!req.body.taskName) {
     console.log(req.body);
-    return res.status(400).send({ message: "Job title, company, start date, and resume ID are required!" });
+    return res.status(400).send({ message: "Task name is required!" });
   }
 
-
-  // Create an Task object
+  // Create a Task object
   const task = {
     category: req.body.category,
-    id: req.body.id,
-    taskName: req.body.name,
+    taskName: req.body.taskName,
     description: req.body.description,
-    Points: req.body.points,
-    Rationale: req.body.Rationale,
-    semester: req.body.semester,
-    scheduling_type: req.body.scheduling_type,
-    reflection_required: req.body.reflection_required,
-    //resumeId: req.body.resumeId,
-    majors: req.body.majors, // Fixed spelling
+    NumOfPoints: req.body.NumOfPoints,
+    grad_semester: req.body.grad_semester,
+    majors: req.body.majors,
     CliftonStrengths: req.body.CliftonStrengths
   };
-
 
   // Save Task in the database
   Task.create(task)
@@ -45,14 +37,19 @@ exports.create = (req, res) => {
     });
 };
 
+// Retrieve all Tasks
 exports.findAll = (req, res) => {
-  Task.findAll()  // No filtering by ID
-    .then(data => res.send(data))
+  Task.findAll()
+    .then(data => {
+      res.send(data);
+    })
     .catch(err => {
       console.error("Error retrieving tasks:", err);
-      res.status(500).send({
-        message: err.message || "Error retrieving tasks."
-      });
+      if (!res.headersSent) { // Ensure we haven't already sent a response
+        return res.status(500).send({
+          message: err.message || "Error retrieving tasks."
+        });
+      }
     });
 };
 
@@ -75,11 +72,9 @@ exports.findOne = (req, res) => {
     });
 };
 
-
-// Update an Task by the id in the request
+// Update a Task by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
-
 
   // Validate request
   if (!req.body.id) {
@@ -88,7 +83,6 @@ exports.update = (req, res) => {
       message: "task ID required for updating!"
     });
   }
-
 
   Task.update(req.body, { where: { id: id } })
     .then(num => {
@@ -113,8 +107,30 @@ exports.update = (req, res) => {
     });
 };
 
+// Complete a task and add points
+exports.completeTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await Task.findByPk(id);
 
-// Delete an Task with the specified id in the request
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    if (!task.completed) {
+      task.completed = true;
+      task.NumOfPoints += 3; // Increment points by 3
+      await task.save();
+    }
+
+    res.json({ message: "Task marked as completed!", task });
+  } catch (error) {
+    console.error("Error completing task:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Delete a Task with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
   Task.destroy({ where: { id: id } })
@@ -135,8 +151,7 @@ exports.delete = (req, res) => {
     });
 };
 
-
-// Delete all Task entries from the database.
+// Delete all Task entries from the database
 exports.deleteAll = (req, res) => {
   Task.destroy({ where: {}, truncate: false })
     .then(nums => res.send({ message: `${nums} Task entries were deleted successfully!` }))
@@ -147,6 +162,8 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
+
+// Mark a task as pending completion (requires review)
 exports.markAsComplete = async (req, res) => {
   try {
     const task = await Task.findByPk(req.params.id);
@@ -166,13 +183,18 @@ exports.markAsComplete = async (req, res) => {
 
     const admins = await Admin.findAll();
 
-    for (const admin of admins) {
-      await notificationController.sendNotification(
-        admin.id,
-        `Task "${task.name}" was marked as complete and needs review.`,
-        "task_approval",
-        { taskId: task.id }
-      );
+    // Check if notificationController is defined before using it
+    if (typeof notificationController !== 'undefined') {
+      for (const admin of admins) {
+        await notificationController.sendNotification(
+          admin.id,
+          `Task "${task.name}" was marked as complete and needs review.`,
+          "task_approval",
+          { taskId: task.id }
+        );
+      }
+    } else {
+      console.log("Notification controller not available, skipping notifications");
     }
 
     res.json({ message: "Task marked as Pending", task });
@@ -182,6 +204,7 @@ exports.markAsComplete = async (req, res) => {
   }
 };
 
+// Approve a completed task
 exports.approveTask = async (req, res) => {
   try {
     const task = await Task.findByPk(req.params.id);
@@ -212,6 +235,7 @@ exports.approveTask = async (req, res) => {
   }
 };
 
+// Reject a task that was marked as complete
 exports.rejectTask = async (req, res) => {
   try {
     const task = await Task.findByPk(req.params.id);

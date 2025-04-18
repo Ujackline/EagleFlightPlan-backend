@@ -17,16 +17,19 @@ exports.create = (req, res) => {
     start_time: req.body.start_time,
     end_time: req.body.end_time,
     location: req.body.location,
+    semester: req.body.semester || "Spring 2024", // Add default semester if not provided
     major: req.body.major,
     semester: req.body.semester,
   };
 
   // Save Event in the database
   Event.create(event)
-    .then(data => res.send(data))
+    .then(data => {
+      return res.send(data);
+    })
     .catch(err => {
       console.error("Error creating event:", err);
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || "Some error occurred while creating the event."
       });
     });
@@ -37,11 +40,11 @@ exports.findAll = (req, res) => {
   Event.findAll() // Fetch all events
     .then(data => {
       console.log("Fetched Events from Database:", data); // Debugging
-      res.send(data);
+      return res.send(data);
     })
     .catch(err => {
       console.error("Error retrieving Events:", err);
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || "Error retrieving Events."
       });
     });
@@ -53,14 +56,14 @@ exports.findOne = (req, res) => {
   Event.findByPk(id)
     .then(data => {
       if (data) {
-        res.send(data);
+        return res.send(data);
       } else {
-        res.status(404).send({ message: `Cannot find Event with id=${id}.` });
+        return res.status(404).send({ message: `Cannot find Event with id=${id}.` });
       }
     })
     .catch(err => {
       console.error("Error retrieving Event with id:", id, err);
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || `Error retrieving Event with id=${id}`
       });
     });
@@ -76,18 +79,18 @@ exports.update = (req, res) => {
   }
 
   Event.update(req.body, { where: { id: id } })
-    .then(num => {
+    .then(([num]) => {
       if (num === 1) {
-        res.send({ message: "Event was updated successfully." });
+        return res.send({ message: "Event was updated successfully." });
       } else {
-        res.status(404).send({
+        return res.status(404).send({
           message: `Cannot update Event with id=${id}. Maybe Event was not found or req.body is empty!`
         });
       }
     })
     .catch(err => {
       console.error("Error updating Event with id:", id, err);
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || `Error updating Event with id=${id}`
       });
     });
@@ -99,16 +102,16 @@ exports.delete = (req, res) => {
   Event.destroy({ where: { id: id } })
     .then(num => {
       if (num == 1) {
-        res.send({ message: "Event was deleted successfully!" });
+        return res.send({ message: "Event was deleted successfully!" });
       } else {
-        res.status(404).send({
+        return res.status(404).send({
           message: `Cannot delete Event with id=${id}. Maybe Event was not found!`
         });
       }
     })
     .catch(err => {
       console.error("Error deleting Event with id:", id, err);
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || `Could not delete Event with id=${id}`
       });
     });
@@ -117,10 +120,12 @@ exports.delete = (req, res) => {
 // Delete all Events from the database
 exports.deleteAll = (req, res) => {
   Event.destroy({ where: {}, truncate: false })
-    .then(nums => res.send({ message: `${nums} Events were deleted successfully!` }))
+    .then(nums => {
+      return res.send({ message: `${nums} Events were deleted successfully!` });
+    })
     .catch(err => {
       console.error("Error removing all Events:", err);
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || "Some error occurred while removing all Events."
       });
     });
