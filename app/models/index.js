@@ -64,6 +64,8 @@ db.Task.belongsToMany(db.FlightPlan, {through: db.FlightPlanTask, as: "flightPla
 db.Student.belongsToMany(db.Experience, { through: db.StudentExperience, as: "experiences", foreignKey: "studentId" });
 db.Experience.belongsToMany(db.Student, { through: db.StudentExperience, as: "students", foreignKey: "experienceId" });
 
+// In StudentExperience model or setup
+db.StudentExperience.belongsTo(db.Experience, {foreignKey: 'experienceId', as: 'experience'});
 
 // Badge - Experience (Many-to-Many)
 db.Badge.belongsToMany(db.Experience, { through: db.BadgeExperience, as: "experiences", foreignKey: "badgeId" });

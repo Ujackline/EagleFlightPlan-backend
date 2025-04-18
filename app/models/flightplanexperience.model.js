@@ -5,15 +5,6 @@ module.exports = (sequelize, Sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-
-      CompletionDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
 
     });
   
