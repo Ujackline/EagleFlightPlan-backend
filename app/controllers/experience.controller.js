@@ -1,3 +1,4 @@
+const { admin } = require("googleapis/build/src/apis/admin/index.js");
 const db = require("../models"); // Import models
 const Experience = db.Experience; // Get Experiences model
 const Op = db.Sequelize.Op; // Sequelize operators for queries
@@ -6,15 +7,21 @@ const Student = db.Student;
 const StudentExperience = db.StudentExperience;
 const StudentBadge = db.StudentBadge;
 const Badge = db.Badge;
+const Admin= db.Admin;
 
 
 // **1. Create a new Experience**
-exports.create = (req, res) => {
-  if (!req.body.name || !req.body.category || !req.body.description || !req.body.type) {
+exports.create = async (req, res) => {
+  if (
+    !req.body.name ||
+    !req.body.category ||
+    !req.body.description ||
+    !req.body.type
+  ) {
     return res.status(400).send({ message: "Required fields cannot be empty!" });
   }
 
-  const experience = {
+  const experienceData = {
     name: req.body.name,
     category: req.body.category,
     description: req.body.description,
@@ -25,14 +32,37 @@ exports.create = (req, res) => {
     cliftonStrength: req.body.cliftonStrength,
     reflectionRequired: req.body.reflectionRequired || false,
     points: req.body.points || 0,
-    status: "Incomplete",
+    // status: "Incomplete",
   };
 
-  Experience.create(experience)
-    .then((data) => res.send(data))
-    .catch((err) =>
-      res.status(500).send({ message: err.message || "Some error occurred while creating the Experience." })
+  try {
+    // 1. Create the experience
+    const experience = await Experience.create(experienceData);
+
+    // 2. Find all flight plans with the same semester
+    const flightPlans = await db.FlightPlan.findAll({
+      where: { semester: experience.semester }
+      
+    });
+    console.log("Matched flight plans:", flightPlans.map(f => f.id));
+
+    // 3. Create join records in FlightPlanExperience
+    await Promise.all(
+      flightPlans.map(plan =>
+        db.FlightPlanExperience.create({
+          flightPlanId: plan.id,
+          experienceId: experience.id,
+        })
+      )
     );
+
+    res.status(201).send(experience);
+  } catch (err) {
+    console.error("Error creating experience and linking:", err);
+    res.status(500).send({
+      message: err.message || "Some error occurred while creating the Experience."
+    });
+  }
 };
 
 // **2. Retrieve all Experiences**
@@ -104,26 +134,40 @@ exports.markAsComplete = async (req, res) => {
       return res.status(404).json({ message: "Experience not found" });
     }
 
-    // Update experience status
-    experience.status = "Pending";
-    await experience.save();
-
-    // Create StudentExperience entry
-    await StudentExperience.create({
-      studentId: req.user.id,
-      experienceId: experience.id,
-      status: 'pending',
-      pointsEarned: 0
+    const [studentExperience, created] = await StudentExperience.findOrCreate({
+      where: {
+        studentId: req.user.id,
+        experienceId: experience.id
+      },
+      defaults: {
+        status: 'pending',
+        approvedBy: 'null',
+        pointsEarned: parseInt(experience.points) || 0
+      }
     });
 
+    // if (!created) {
+    //   studentExperience.status = 'pending';
+    //   studentExperience.approvedBy = 'admin';
+    //   studentExperience.pointsEarned = parseInt(experience.points) || 0;
+    //   await studentExperience.save();
+    // }
 
-    // Fetch all admins
+    if (!created) {
+      if (studentExperience.status === 'Approved' || studentExperience.status === 'Pending') {
+        return res.status(400).json({ message: "You've already submitted this experience." }); 
+      }
+
+      studentExperience.status = 'Pending';
+      studentExperience.approvedBy = null;
+      studentExperience.pointsEarned = parseInt(experience.points) || 0;
+      await studentExperience.save();
+    }
+
     const admins = await db.Admin.findAll();
 
-    // Send notification to each admin
     for (const admin of admins) {
       await notificationController.sendNotification(
-         //console.log("📬 Creating notification:", notificationData),
         admin.id,
         `Experience "${experience.name}" needs approval.`,
         "experience_approval",
@@ -138,19 +182,60 @@ exports.markAsComplete = async (req, res) => {
   }
 };
 
+ 
+exports.findBySemester = async (req, res) => {
+  try {
+    const { semester } = req.params;
+
+    if (!semester) {
+      return res.status(400).json({ message: "Semester is required" });
+    }
+
+    const experiences = await db.Experience.findAll({
+      where: { semester: semester },
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json(experiences);
+  } catch (err) {
+    console.error("Error fetching semester-specific experiences:", err);
+    res.status(500).json({ message: "Internal server error", error: err });
+  }
+};
+
+// **9. Get all experiences for a specific student**
+exports.fetchStudentExperienceByStudentId = async (req, res) => {
+  try {
+    const studentId = req.params.id; // assuming you're using JWT/session middleware that sets req.user
+
+    console.log("Backend received studentId:", studentId); // ✅ Confirm it's being received
+
+    const studentExperiences = await db.StudentExperience.findAll({
+      where: { studentId },
+       include: [
+        {
+           model: db.Experience, as: 'experience',
+           attributes: ['id', 'name', 'category', 'description', 'type', 'points'],
+         }
+       ],
+      order: [['createdAt', 'DESC']]
+    });
+
+
+
+    res.json(studentExperiences);
+  } catch (error) {
+    console.error("Error fetching student experiences:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 
 // **8. Approve Experience (Admin Action)**
 exports.approveExperience = async (req, res) => {
   try {
-    // 1. Find the experience
-    const experience = await Experience.findByPk(req.params.id);
-    if (!experience) return res.status(404).json({ message: 'Experience not found' });
-
-    // 2. Approve the experience itself
-    experience.status = 'Approved';
-    experience.approvedBy = req.body.approvedBy || 'Admin';
-    experience.completionDate = new Date();
-    await experience.save();
+    // // 1. Find the experience
+     const experience = await Experience.findByPk(req.params.id);
 
     // 3. Find the studentexperience record to get studentId
     const studentExperience = await StudentExperience.findOne({
@@ -164,13 +249,17 @@ exports.approveExperience = async (req, res) => {
       return res.status(404).json({ message: 'No matching student-experience record found.' });
     }
 
+
     const studentId = studentExperience.studentId;
 
     // 4. Mark the student experience as completed and award points
-    studentExperience.status = 'completed';
+    studentExperience.status = 'Approved';
     studentExperience.pointsEarned = experience.points;
-    studentExperience.completionDate = new Date();
+    studentExperience.CompletionDate = new Date();
+    const approverName = `${req.user?.fName || ''} ${req.user?.lName || ''}`.trim();
+    studentExperience.approvedBy = approverName || "Admin";
     await studentExperience.save();
+
 
     // 5. Sum total points earned by this student
     const totalPoints = await StudentExperience.sum('pointsEarned', {
@@ -225,8 +314,8 @@ exports.rejectExperience = async (req, res) => {
     const experience = await Experience.findByPk(req.params.id);
     if (!experience) return res.status(404).json({ message: "Experience not found" });
 
-    experience.status = "Rejected";
-    await experience.save();
+     experience.status = "Rejected";
+     await experience.save();
 
     res.json({ message: "Experience rejected successfully", experience });
   } catch (error) {
