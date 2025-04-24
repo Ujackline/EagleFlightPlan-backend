@@ -66,7 +66,7 @@ module.exports = (app) => {
   router.delete("/", [authenticate, isAdmin], task.deleteAll);
 
 
-  router.patch("/:id/markComplete", [authenticate], task.markAsComplete);
+  //router.patch("/:id/markComplete", [authenticate], task.markAsComplete);
   router.patch("/:id/approve", [authenticate, isAdmin], task.approveTask);
   router.patch("/:id/reject", [authenticate, isAdmin], task.rejectTask);
 
