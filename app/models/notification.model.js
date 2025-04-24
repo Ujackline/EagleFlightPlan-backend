@@ -19,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false, // This associates notifications with a specific admin or user
         },
         type: {
-            type: Sequelize.ENUM("experience_approval", "event_update", "general"),
+            type: Sequelize.ENUM("experience_approval", "event_update", "general", "task_completion"),
             allowNull: false,
             defaultValue: "general",
         },
@@ -35,7 +35,9 @@ module.exports = (sequelize, Sequelize) => {
           taskId: {
             type: Sequelize.INTEGER,
             allowNull: true,
-          }
+          },
+          studentId: { type: Sequelize.INTEGER, allowNull: true }, 
+
           
     });  
 

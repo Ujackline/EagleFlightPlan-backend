@@ -6,7 +6,7 @@ module.exports = (sequelize, Sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
+    taskName: {
       type: Sequelize.STRING,
       allowNull: false,
     },
@@ -26,43 +26,66 @@ module.exports = (sequelize, Sequelize) => {
     task_type: {
       type: Sequelize.STRING,
       allowNull: true,
-    },  
+    }, 
 
-    semester: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-
-    cliftonstrengths: {
-      type: Sequelize.STRING,
-      allowNull: true,
-    },
-    points: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-
-    major: {
-      type: Sequelize.STRING,
+    reflection_required: {
+      type: Sequelize.BOOLEAN,
       allowNull: true,
     },
 
+    scheduling_type: {
+      type: Sequelize.STRING, // e.g. one-time, semesterly
+      allowNull: true,
+    },
+    rationale: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
+
+    grad_semester: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+
+    completion_type: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: "confirmed", // Add this if you want to default it
+    },    
+
+    CliftonStrengths: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+
+    // Example: task.model.js
     badge: {
       type: Sequelize.STRING,
       allowNull: true,
-  },
-    status: {
-        type: Sequelize.ENUM("Incomplete", "Pending", "Approved", "Rejected"),
-        allowNull: false,
-        defaultValue: "Incomplete",
     },
-    approvedBy: {
-        type: Sequelize.STRING, // Can store an admin's name or ID
-        allowNull: true,
+
+  
+    completed: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false, // Set default to false
     },
-    completionDate: {
-        type: Sequelize.DATE,
-        allowNull: true,
+    NumOfPoints: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0, // Default 0 points
+    },
+
+    // points: {
+    //   type: Sequelize.INTEGER,
+    //   defaultValue: 0, // Default 0 points
+    // },
+
+    majors: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    approved: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
     },
 
 

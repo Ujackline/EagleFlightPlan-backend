@@ -14,6 +14,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DATE,
         allowNull: false,
       },
+
+      // models/studentTask.model.js
+      approved: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+
+      
               
     });
   

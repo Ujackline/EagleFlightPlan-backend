@@ -70,7 +70,7 @@ exports.findAll = (req, res) => {
 };
 
 exports.isAdmin = (req, res, next) => {
-  console.log("🔥 Checking if user is admin. Request User:", req.user);
+  console.log(" Checking if user is admin. Request User:", req.user);
 
   if (!req.user) {
     return res.status(401).send({ message: "Unauthorized: User not found" });

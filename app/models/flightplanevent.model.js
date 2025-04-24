@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const FlightPlanExperience = sequelize.define("flightplanexperience", {
+    const FlightPlanEvent = sequelize.define("flightplanevent", {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -8,5 +8,5 @@ module.exports = (sequelize, Sequelize) => {
 
     });
   
-    return FlightPlanExperience;
+    return FlightPlanEvent;
   };

@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+// const accommodationRoutes = require('./app/routes/accommodations');
+
 
 const app = express();
 
@@ -17,10 +19,13 @@ app.use(cors(corsOptions));
 app.options("*", cors());
 
 // parse requests of content-type - application/json
-app.use(express.json());
+//app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
+//app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // simple route
 app.get("/", (req, res) => {
@@ -29,14 +34,17 @@ app.get("/", (req, res) => {
 
 require("./app/routes/auth.routes.js")(app);
 require("./app/routes/user.routes")(app);
-require("./app/routes/experience.routes.js")(app);
 require("./app/routes/admin.routes.js")(app);
 require("./app/routes/award.routes.js")(app);
 require("./app/routes/badge.routes.js")(app);
 require("./app/routes/event.routes.js")(app);
+require("./app/routes/experience.routes.js")(app);
 require("./app/routes/task.routes.js")(app);
 require("./app/routes/student.routes.js")(app);
+require("./app/routes/notification.routes.js")(app);
 require("./app/routes/flightplan.routes.js")(app);
+require('./app/routes/email.routes.js'); // Just requiring the file, no explicit route registration here
+require("./routes/report.routes.js")(app);
 require("./app/routes/notification.routes.js")(app);
 require("./app/routes/studentworker.routes.js")(app);
 
@@ -50,3 +58,14 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 module.exports = app;
+
+
+
+
+//const dotenv = require('dotenv');
+
+//dotenv.config();
+
+
+
+
