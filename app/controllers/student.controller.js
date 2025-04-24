@@ -44,21 +44,33 @@ const student = {
 
 }
 
+// exports.findAll = (req, res) => {
+//      const id = req.params.id;
+//     Student.findAll({where: {id: id}})
+//         .then((data) => {
+//         if (data) {
+//           res.send(data);
+//         } else {
+//           res.status(404).send({
+//             message: `Cannot find Student for student with id=${id}.`,
+//           });
+//         }
+//         })
+//       .catch((err) => {
+//         res.status(500).send({message:err.message ||"Error retrieving Projects for student with id=" 
+//         });
+//     });
+// };
+
 exports.findAll = (req, res) => {
-    const id = req.params.id;
-    Student.findAll({where: {id: id}})
-        .then((data) => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: `Cannot find Student for student with id=${id}.`,
-          });
-        }
-        })
-      .catch((err) => {
-        res.status(500).send({message:err.message ||"Error retrieving Projects for student with id=" 
-        });
+  Student.findAll()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving students."
+      });
     });
 };
 
@@ -130,6 +142,21 @@ exports.update = (req, res) => {
       });
     });
 };
+
+// controllers/studentController.js
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const students = await db.Student.findAll({
+      attributes: ['id', 'fName', 'lName', 'points'],
+      order: [['points', 'DESC']]
+    });
+    res.status(200).json(students);
+  } catch (error) {
+    console.error("❌ Error fetching leaderboard:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 exports.delete = (req, res) => {
   const id = req.params.id;

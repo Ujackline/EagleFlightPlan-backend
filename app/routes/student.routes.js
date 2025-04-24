@@ -8,6 +8,9 @@ module.exports = (app) => {
   
     // Retrieve all students
     router.get("/", [authenticate], student.findAll);
+
+     // Get student leaderboard
+     router.get("/leaderboard", student.getLeaderboard);
   
     // Retrieve a single student with id
     router.get("/:id", [authenticate], student.findOne);
@@ -15,6 +18,7 @@ module.exports = (app) => {
     // Update a student with id
     router.put("/:id", [authenticate], student.update);
   
+
     // Delete a student with id
     router.delete("/:id", [authenticate], student.delete);
   
