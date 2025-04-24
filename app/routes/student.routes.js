@@ -13,7 +13,7 @@ module.exports = (app) => {
   router.get("/current", [authenticate], student.getCurrentStudent);
 
   // Update current student's profile
-  router.put("/current", [authenticate], student.updateCurrentStudentProfile);
+   router.put("/current", [authenticate], student.updateCurrentStudentProfile);
 
 
   // Retrieve a single student with id

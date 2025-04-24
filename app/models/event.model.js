@@ -39,13 +39,9 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
     },
 
-    semesterId: {
-      type: Sequelize.INTEGER,
+    semester: {
+      type: Sequelize.STRING,
       allowNull: false,
-      references: {
-        model: 'semesters',
-        key: 'id'
-      }
     },
 
     major: {
@@ -55,12 +51,5 @@ module.exports = (sequelize, Sequelize) => {
   });
 
   // Add associations method
-  Event.associate = (models) => {
-    Event.belongsTo(models.Semester, {
-      foreignKey: 'semesterId',
-      as: 'semesterInfo'
-    });
-  };
-
   return Event;
 };

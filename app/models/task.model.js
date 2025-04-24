@@ -19,15 +19,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     },
    
-    semesterId: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'semesters',
-        key: 'id'
-      }
+    semester: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
-
 
     CliftonStrengths: {
 
@@ -45,10 +40,6 @@ module.exports = (sequelize, Sequelize) => {
     },
 
 
-    // points: {
-    //   type: Sequelize.INTEGER,
-    //   defaultValue: 0, // Default 0 points
-    // },
 
     majors: {
 
@@ -73,12 +64,12 @@ module.exports = (sequelize, Sequelize) => {
   });
 
   // Add associations
-  Task.associate = (models) => {
-    Task.belongsTo(models.Semester, {
-      foreignKey: 'semesterId',
-      as: 'semesterInfo'
-    });
-  };
+  // Task.associate = (models) => {
+  //   Task.belongsTo(models.Semester, {
+  //     foreignKey: 'semesterId',
+  //     as: 'semesterInfo'
+  //   });
+  // };
 
   return Task;
 };
