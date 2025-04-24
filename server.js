@@ -39,7 +39,7 @@ require("./app/routes/student.routes.js")(app);
 require("./app/routes/flightplan.routes.js")(app);
 require("./app/routes/notification.routes.js")(app);
 require("./app/routes/studentworker.routes.js")(app);
-require("./app/routes/semester.routes.js")(app);
+
 
 
 // set port, listen for requests

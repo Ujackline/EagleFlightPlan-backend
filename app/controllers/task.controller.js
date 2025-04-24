@@ -22,7 +22,8 @@ exports.create = (req, res) => {
     NumOfPoints: req.body.NumOfPoints,
     grad_semester: req.body.grad_semester,
     majors: req.body.majors,
-    CliftonStrengths: req.body.CliftonStrengths
+    CliftonStrengths: req.body.CliftonStrengths,
+    applicableYear: req.body.applicableYear || null 
   };
 
   // Save Task in the database
@@ -107,26 +108,62 @@ exports.update = (req, res) => {
     });
 };
 
-// Complete a task and add points
+// In your taskController.js
 exports.completeTask = async (req, res) => {
   try {
     const id = req.params.id;
+    console.log(`Task ID: ${id} - Starting completion process`);
+    
+    // Find the task
     const task = await Task.findByPk(id);
-
     if (!task) {
-      return res.status(404).json({ error: "Task not found" });
+      console.log(`Task ID: ${id} - Task not found`);
+      return res.status(404).json({ 
+        success: false, 
+        error: "Task not found" 
+      });
     }
-
-    if (!task.completed) {
-      task.completed = true;
-      task.NumOfPoints += 3; // Increment points by 3
-      await task.save();
-    }
-
-    res.json({ message: "Task marked as completed!", task });
+    
+    // Check the database column names based on your schema
+    console.log("Task model properties:", Object.keys(task.dataValues));
+    
+    // First, check if we need to use update instead of direct assignment
+    const updateResult = await Task.update(
+      {
+        completed: true,
+        status: 'Approved',
+        completionDate: new Date()
+      },
+      {
+        where: { id: id },
+        returning: true
+      }
+    );
+    
+    console.log("Database update result:", updateResult);
+    
+    // Re-fetch the task to confirm changes
+    const updatedTask = await Task.findByPk(id);
+    console.log("Task after update:", {
+      id: updatedTask.id,
+      taskName: updatedTask.taskName,
+      status: updatedTask.status,
+      completed: updatedTask.completed
+    });
+    
+    // Return success response
+    return res.json({ 
+      success: true,
+      message: "Task marked as completed successfully!", 
+      task: updatedTask,
+      pointsChange: parseInt(updatedTask.NumOfPoints || 0)
+    });
   } catch (error) {
-    console.error("Error completing task:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in completeTask:", error);
+    return res.status(500).json({ 
+      success: false,
+      error: "Internal Server Error: " + error.message 
+    });
   }
 };
 
@@ -163,6 +200,31 @@ exports.deleteAll = (req, res) => {
     });
 };
 
+
+
+exports.findByFlightPlan = (req, res) => {
+  const flightPlanId = req.params.flightPlanId;
+  
+  // You'll need to customize this query based on your database structure
+  db.Task.findAll({
+    include: [{
+      model: db.FlightPlan,
+      as: "flightPlans",
+      through: {
+        where: { flightPlanId: flightPlanId }
+      },
+      required: true
+    }]
+  })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Error retrieving tasks for flight plan ID: " + flightPlanId
+      });
+    });
+};
 // Mark a task as pending completion (requires review)
 exports.markAsComplete = async (req, res) => {
   try {
@@ -247,5 +309,120 @@ exports.rejectTask = async (req, res) => {
     res.json({ message: "Task rejected successfully", task });
   } catch (error) {
     res.status(500).json({ message: "Error rejecting task", error });
+  }
+};
+
+// Get tasks completed by a specific student
+exports.getStudentTasksByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // First get the student ID from the user ID
+    const student = await Student.findOne({
+      where: { userId: userId }
+    });
+    
+    if (!student) {
+      return res.status(404).json({ message: "Student not found for this user" });
+    }
+    
+    // Get all student tasks for this student
+    const studentTasks = await StudentTask.findAll({
+      where: { studentId: student.id },
+      include: [{
+        model: Task,
+        as: "task"  // Make sure this alias matches your model association
+      }]
+    });
+    
+    res.send(studentTasks);
+  } catch (error) {
+    console.error("Error getting student tasks:", error);
+    res.status(500).json({ 
+      message: "Error retrieving student tasks",
+      error: error.message
+    });
+  }
+};
+
+// Complete a task for a specific student
+exports.completeTaskForStudent = async (req, res) => {
+  try {
+    const taskId = req.params.taskId;
+    const userId = req.params.userId || req.user.id; // Get from params or auth token
+    
+    // Get the student record
+    const student = await Student.findOne({
+      where: { userId: userId }
+    });
+    
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    
+    // Find the task
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    
+    // Check if a student task record already exists
+    let studentTask = await StudentTask.findOne({
+      where: {
+        studentId: student.id,
+        taskId: taskId
+      }
+    });
+    
+    if (studentTask) {
+      // Update existing record
+      studentTask.status = 'completed';
+      studentTask.CompletionDate = new Date(); // CORRECTED: Use capital C
+      await studentTask.save();
+    } else {
+      // Create new record
+      studentTask = await StudentTask.create({
+        studentId: student.id,
+        taskId: taskId,
+        status: 'completed',
+        CompletionDate: new Date() // CORRECTED: Use capital C
+      });
+    }
+    
+    // Return success response
+    return res.json({
+      success: true,
+      message: "Task completed successfully for student",
+      studentTask,
+      task,
+      pointsChange: parseInt(task.NumOfPoints || 0)
+    });
+  } catch (error) {
+    console.error("Error completing task for student:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error: " + error.message
+    });
+  }
+};
+exports.findByApplicableYear = async (req, res) => {
+  try {
+    const { year } = req.params;
+    
+    const tasks = await Task.findAll({
+      where: {
+        [Op.or]: [
+          { applicableYear: year },
+          { applicableYear: null } // Tasks applicable to all years
+        ]
+      }
+    });
+
+    res.send(tasks);
+  } catch (err) {
+    console.error("Error finding tasks by applicable year:", err);
+    res.status(500).send({
+      message: err.message || "Error retrieving tasks"
+    });
   }
 };

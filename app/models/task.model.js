@@ -51,12 +51,8 @@ module.exports = (sequelize, Sequelize) => {
     // },
 
     majors: {
-
       type: Sequelize.STRING,
       allowNull: true,
-    },
-    badge: {
-      type: Sequelize.STRING
     },
     status: {
       type: Sequelize.ENUM('Incomplete', 'Pending', 'Approved', 'Rejected'),
@@ -65,11 +61,26 @@ module.exports = (sequelize, Sequelize) => {
     approvedBy: {
       type: Sequelize.STRING
     },
-    completionDate: {
-      type: Sequelize.DATE
-    }
+    applicableYear: {
+      type: Sequelize.ENUM(
+        'Freshman', 
+        'Sophomore', 
+        'Junior', 
+        'Senior', 
+        'Junior Fall', 
+        'Junior Spring', 
+        'Senior Fall', 
+        'Senior Spring',
+        'Sophomore Spring',
+        'Fall 2025',
+        'Spring 2025',
+        'Summer 2025'
+      ),
+      allowNull: true
+    },
+   
   }, {
-    // Add any additional model options if needed
+   
   });
 
   // Add associations

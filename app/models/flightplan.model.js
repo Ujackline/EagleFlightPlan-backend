@@ -1,10 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
   const FlightPlan = sequelize.define("flightplan", {
-    id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
     name: {
       type: Sequelize.STRING,
       allowNull: false
@@ -17,17 +12,19 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false
     },
-    semesterId: {
+    progress: {
       type: Sequelize.INTEGER,
-      allowNull: true
+      defaultValue: 0
     },
-    gradSemesterId: {
+    studentYear: {
+      type: Sequelize.STRING
+    },
+    studentId: {  // Keep this field as it's the foreign key to Student
       type: Sequelize.INTEGER,
-      allowNull: true
+      allowNull: false
     }
+    // Remove flightPlanId and taskId - they should NOT be here
   });
-
-
-
+  
   return FlightPlan;
 };

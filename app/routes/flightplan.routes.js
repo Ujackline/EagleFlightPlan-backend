@@ -11,17 +11,21 @@ module.exports = (app) => {
   
     // Retrieve a single flightplan with id
     router.get("/:id", [authenticate], flightplan.findOne);
-  
+
+
     // Update a flightplan with id
     router.put("/:id", [authenticate], flightplan.update);
-  
+
+    router.get("/:id/tasks", [authenticate], flightplan.getFlightPlanTasks);
+
     // Delete a flightplan with id
     router.delete("/:id", [authenticate], flightplan.delete);
+
+    router.get("/calculate-year/:studentId", [authenticate], flightplan.calculateYearForStudent);
   
     // Delete all flightplans
     router.delete("/", [authenticate], flightplan.deleteAll);
     router.get("/student/:studentId/semester/:semester", [authenticate], flightplan.findByStudentAndSemester);
-
   
     app.use("/flight-plan-t9/flightplan", router);
   };
