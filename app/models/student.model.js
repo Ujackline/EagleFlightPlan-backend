@@ -41,10 +41,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
       },
       
-      semester: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+     // semester: {
+        //type: Sequelize.STRING,
+      //  allowNull: false,
+     // },
       
     
 

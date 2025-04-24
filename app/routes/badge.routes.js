@@ -22,7 +22,13 @@ module.exports = (app) => {
   
     // Delete all badges
     router.delete("/", [authenticate], badge.deleteAll);
+    
+    router.post("/check-auto-award", [authenticate], badge.checkAutomaticBadges);
+
   
     app.use("/flight-plan-t9/badge", router);
+
+    // Award automatic badges based on student points
+
   };
   

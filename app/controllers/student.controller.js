@@ -91,7 +91,30 @@ exports.findOne = (req, res) => {
     });
 };
 
-// exports.findByEmail = (req, res) => {
+// Search student by email
+exports.searchByEmail = async (req, res) => {
+  const { email } = req.params;
+
+  if (!email) {
+    return res.status(400).send({ message: "Email is required" });
+  }
+
+  try {
+    const student = await Student.findOne({
+      where: { email: { [Op.like]: email } } // Use iLike for case-insensitive match (Postgres only)
+    });
+
+    if (!student) {
+      return res.status(404).send({ message: `No student found with email: ${email}` });
+    }
+
+    res.send(student);
+  } catch (err) {
+    console.error("Error finding student by email:", err);
+    res.status(500).send({ message: "Error searching student by email" });
+  }
+};
+
 //   const studentEmail = req.params.studentEmail;
 
 //   Student.findOne({
