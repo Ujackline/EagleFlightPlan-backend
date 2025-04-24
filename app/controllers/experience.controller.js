@@ -10,6 +10,7 @@ const Badge = db.Badge;
 const Admin= db.Admin;
 
 
+
 // **1. Create a new Experience**
 exports.create = async (req, res) => {
   if (
@@ -145,13 +146,6 @@ exports.markAsComplete = async (req, res) => {
         pointsEarned: parseInt(experience.points) || 0
       }
     });
-
-    // if (!created) {
-    //   studentExperience.status = 'pending';
-    //   studentExperience.approvedBy = 'admin';
-    //   studentExperience.pointsEarned = parseInt(experience.points) || 0;
-    //   await studentExperience.save();
-    // }
 
     if (!created) {
       if (studentExperience.status === 'Approved' || studentExperience.status === 'Pending') {

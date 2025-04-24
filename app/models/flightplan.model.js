@@ -17,14 +17,6 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false
     },
-    semesterId: {
-      type: Sequelize.INTEGER,
-      allowNull: true
-    },
-    gradSemesterId: {
-      type: Sequelize.INTEGER,
-      allowNull: true
-    }
   });
 
 

@@ -28,7 +28,6 @@ db.Task = require("./task.model.js")(sequelize, Sequelize);
 db.Student = require("./student.model.js")(sequelize, Sequelize);
 db.Event = require("./event.model.js")(sequelize, Sequelize);
 db.Notification = require("./notification.model.js")(sequelize, Sequelize);
-db.Semester = require("./semester.model.js")(sequelize, Sequelize);
 
 // Bridge Tables
 db.FlightPlanExperience = require("./flightplanexperience.model.js")(sequelize, Sequelize);
@@ -40,38 +39,10 @@ db.StudentEvent = require("./studentevent.model.js")(sequelize, Sequelize);
 db.StudentBadge = require("./studentbadge.model.js")(sequelize, Sequelize);
 db.StudentAward = require("./studentaward.model.js")(sequelize, Sequelize);
 db.StudentTask = require("./studenttask.model.js")(sequelize, Sequelize);
-db.StudentSemester = require("./studentsemester.model.js")(sequelize, Sequelize);
+db.FlightPlanEvent = require("./flightplanevent.model.js")(sequelize, Sequelize);
 
-// ======================
+
 // ASSOCIATIONS
-// ======================
-
-// 1. SEMESTER RELATIONSHIPS
-db.Semester.hasMany(db.FlightPlan, {as: "flightPlans",foreignKey: "semesterId"});
-db.FlightPlan.belongsTo(db.Semester, {
-  as: "semesterFlightPlan",  
-  foreignKey: "semesterId"
-});
-
-db.Semester.hasMany(db.Event, {as: "events", foreignKey: "semesterId"});
-db.FlightPlan.belongsTo(db.Semester, {
-  as: "semesterEvents", 
-  foreignKey: "semesterId"
-});
-// Student-Semester Enrollment 
-db.Student.belongsToMany(db.Semester, {
-  through: {
-    model: db.StudentSemester,
-    unique: false
-  },
-  as: "enrolledSemesters",
-  foreignKey: "studentId"
-});
-db.Semester.belongsToMany(db.Student, {
-  through: db.StudentSemester,
-  as: "enrolledStudents",
-  foreignKey: "semesterId"
-});
 
 // 2. FLIGHT PLAN RELATIONSHIPS
 db.FlightPlan.belongsToMany(db.Task, {through: {model: db.FlightPlanTask, unique: false,scope: {relationType: 'flightplan_task'}
@@ -204,25 +175,13 @@ db.Experience.belongsTo(db.Event, {
   foreignKey: "eventId"
 });
 
-// User - Student (One-to-One)
-db.User.hasOne(db.Student, {
-  foreignKey: "userId",
-  as: "studentProfile"
-});
-db.Student.belongsTo(db.User, {
-  foreignKey: "userId",
-  as: "userAccount"
-});
+db.StudentEvent.belongsTo(db.Student, { foreignKey: "studentId", as: "student" });
+db.StudentEvent.belongsTo(db.Event, { foreignKey: "eventId", as: "event" });
 
-// 6. DIRECT SEMESTER REFERENCES (OPTIONAL)
-db.Student.belongsTo(db.Semester, {
-  as: "currentSemester",
-  foreignKey: "currentSemesterId"
-});
+// Many-to-many: FlightPlan <-> Event
+db.FlightPlan.belongsToMany(db.Event, {through: db.FlightPlanEvent, as: "events",foreignKey: "flightPlanId"});
 
-db.Student.belongsTo(db.Semester, {
-  as: "graduationSemester",
-  foreignKey: "gradSemesterId"
-});
+db.Event.belongsToMany(db.FlightPlan, {through: db.FlightPlanEvent, as: "flightPlans",foreignKey: "eventId"});
+
 
 module.exports = db;

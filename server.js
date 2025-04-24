@@ -17,10 +17,13 @@ app.use(cors(corsOptions));
 app.options("*", cors());
 
 // parse requests of content-type - application/json
-app.use(express.json());
+//app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
+//app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // simple route
 app.get("/", (req, res) => {
@@ -39,8 +42,6 @@ require("./app/routes/student.routes.js")(app);
 require("./app/routes/flightplan.routes.js")(app);
 require("./app/routes/notification.routes.js")(app);
 require("./app/routes/studentworker.routes.js")(app);
-require("./app/routes/semester.routes.js")(app);
-
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3029;
