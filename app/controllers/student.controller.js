@@ -49,13 +49,13 @@ exports.create = async (req, res) => {
   }
 };
 
-    flightPlanId: req.body.flightPlanId,
-     points: req.body.points,
-  };
+    // flightPlanId: req.body.flightPlanId,
+    //  points: req.body.points,
+  //};
   
-  Student.create(student)
-    .then(data => res.status(201).json({ message: "Student profile created", data }))
-    .catch(err => res.status(500).send({ message: "Error creating student", error: err }));
+  // Student.create(student)
+  //   .then(data => res.status(201).json({ message: "Student profile created", data }))
+  //   .catch(err => res.status(500).send({ message: "Error creating student", error: err }));
 
     // id: req.body.id,
     // studentFirstName: req.body.studentFirstName,
@@ -71,7 +71,7 @@ exports.create = async (req, res) => {
     // studentPointsAvailable: req.body.studentPointsAvailable,
     // studentBadges: req.body.studentBadges,
 
-}
+//}
 
 // exports.findAll = (req, res) => {
 //      const id = req.params.id;
