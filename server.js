@@ -19,10 +19,13 @@ app.use(cors(corsOptions));
 app.options("*", cors());
 
 // parse requests of content-type - application/json
-app.use(express.json());
+//app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
+//app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // simple route
 app.get("/", (req, res) => {
@@ -44,10 +47,6 @@ require('./app/routes/email.routes.js'); // Just requiring the file, no explicit
 require("./routes/report.routes.js")(app);
 require("./app/routes/notification.routes.js")(app);
 require("./app/routes/studentworker.routes.js")(app);
-
-
-const emailRoutes = require('./app/routes/email.routes.js');
-app.use("/email", emailRoutes);  // Registering "/email/request"
 
 
 // set port, listen for requests

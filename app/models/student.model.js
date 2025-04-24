@@ -1,49 +1,63 @@
 module.exports = (sequelize, Sequelize) => {
-    const Student = sequelize.define("student", {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      fName: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      lName: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+  const Student = sequelize.define("student", {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    fName: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    lName: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
 
-      studentID: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+    studentID: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
 
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      major: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      grad_semester: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      cliftonstrengths: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+    email: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    major: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    grad_semester: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    cliftonstrengths: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
 
-      points: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      }
+//       points: {
+//         type: Sequelize.INTEGER,
+//         allowNull: false,
+//       }
       
 
-    });
-  
-    return Student;
-  };
-  
+    points: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    
+    semester: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+
+    profilePicture: {
+      type: Sequelize.TEXT, // or STRING if storing a URL
+      allowNull: true
+    }
+    
+  });
+
+  return Student;
+};

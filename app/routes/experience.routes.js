@@ -11,6 +11,9 @@ module.exports = (app) => {
   router.put("/:id", [authenticate], experience.update); // Update an experience
   router.delete("/:id", [authenticate], experience.delete); // Delete an experience
   router.delete("/", [authenticate], experience.deleteAll); // Delete all experiences
+  router.get("/semester/:semester", [authenticate], experience.findBySemester);
+
+  router.get("/my-experiences/:id", [authenticate], experience.fetchStudentExperienceByStudentId);
 
   // Approval Workflow Routes
   router.patch("/:id/mark-complete", [authenticate], experience.markAsComplete); // Student marks as complete
