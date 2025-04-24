@@ -2,6 +2,9 @@ const db = require("../models"); // importing the database in order to access it
 const Student = db.Student; // picks/selects the student table in the database so we can use it 
 const Op = db.Sequelize.Op; // gives us access to operators for specific search purposes (genre pour kugabanya search ushatse umuntu)
 const FlightPlan = db.FlightPlan;
+
+
+
 // const  VALID_ROLES = ["student", "admin"]; 
 
 // request & response; creates a student object
@@ -22,7 +25,7 @@ exports.create = async (req, res) => {
     grad_semester: req.body.grad_semester,
     cliftonstrengths: req.body.cliftonstrengths,
     flightPlanId: req.body.flightPlanId,
-    points: req.body.points,
+    points: req.body.points
   };
 
   try {

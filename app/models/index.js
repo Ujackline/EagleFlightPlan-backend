@@ -42,6 +42,7 @@ db.StudentBadge = require("./studentbadge.model.js")(sequelize, Sequelize);
 db.StudentAward= require("./studentaward.model.js")(sequelize, Sequelize);
 db.StudentTask = require("./studenttask.model.js")(sequelize, Sequelize);
 db.Notification= require("./notification.model.js")(sequelize, Sequelize);
+db.FlightPlanEvent = require("./flightplanevent.model.js")(sequelize, Sequelize);
 
 // Associations
 
@@ -96,8 +97,32 @@ db.Award.belongsToMany(db.Student, { through: db.StudentAward, as: "students", f
 // // Badge - Task (Many-to-Many)
 // db.Badge.belongsToMany(db.Task, { through: db.BadgeTask, as: "tasks", foreignKey: "badgeId" });
 // db.Task.belongsToMany(db.Badge, { through: db.BadgeTask, as: "badges", foreignKey: "taskId" });
+// FlightPlanEvent associations - additional relationship
 
 
+// Add these specific associations to your index.js file
+// StudentEvent - Event (Many-to-One)
+db.StudentEvent.belongsTo(db.Event, { 
+  foreignKey: "eventId", 
+  as: "Event" // Use uppercase "Event" to match what your controller is expecting
+});
+
+
+db.Event.hasMany(db.StudentEvent, { 
+  foreignKey: "eventId",
+  as: "studentEvents" 
+});
+
+// This association is missing
+db.StudentEvent.belongsTo(db.Student, { 
+  foreignKey: "studentId", 
+  as: "student" // Use lowercase "student" to match your model
+});
+
+db.Student.hasMany(db.StudentEvent, { 
+  foreignKey: "studentId",
+  as: "eventRegistrations" 
+});
 // Event - Experience (One-to-Many)
 db.Event.hasMany(db.Experience, { as: "experiences", foreignKey: "eventId", onDelete: "CASCADE" });
 db.Experience.belongsTo(db.Event, { as: "event", foreignKey: "eventId", onDelete: "CASCADE" });
