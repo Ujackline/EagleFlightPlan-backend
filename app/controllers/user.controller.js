@@ -83,20 +83,20 @@ exports.isAdmin = (req, res, next) => {
       console.log("🔍 Found User:", user);
 
       if (!user) {
-        console.log("❌ User not found in database.");
+        console.log("User not found in database.");
         return res.status(401).send({ message: "Unauthorized: User not found in database" });
       }
 
       if (user.role !== 'admin') {
-        console.log("🚫 Access Denied: User is not an admin.");
+        console.log("Access Denied: User is not an admin.");
         return res.status(403).send({ message: "Require Admin Role!" });
       }
 
-      console.log("✅ User is an admin. Proceeding...");
+      console.log(" User is an admin. Proceeding...");
       next(); // Move to `notification.findAll`
     })
     .catch(err => {
-      console.error("❌ Error checking admin status:", err);
+      console.error(" Error checking admin status:", err);
       res.status(500).send({ message: "Error checking admin status" });
     });
 };

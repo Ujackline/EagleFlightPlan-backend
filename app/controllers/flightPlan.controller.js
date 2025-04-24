@@ -4,23 +4,26 @@ const Op = db.Sequelize.Op; // Sequelize operators for queries
 
 // **1. Create a new FlightPlan**
 exports.create = (req, res) => {
-  if (!req.body.name || !req.body.semester || !req.body.semesterForGrad) {
+  if (!req.body.name || !req.body.semester || !req.body.grad_semester || !req.body.studentId) {
     return res.status(400).send({ message: "Required fields cannot be empty!" });
   }
 
   const flightPlan = {
     name: req.body.name,
     semester: req.body.semester,
-    semesterForGrad: req.body.semesterForGrad,
-    id: req.body.id, // Foreign key
+    grad_semester: req.body.grad_semester,
+    studentId: req.body.studentId, // correct foreign key
   };
 
   FlightPlan.create(flightPlan)
-    .then((data) => res.send(data))
+    .then((data) => res.status(201).send(data))
     .catch((err) =>
-      res.status(500).send({ message: err.message || "Some error occurred while creating the FlightPlan." })
+      res.status(500).send({
+        message: err.message || "Some error occurred while creating the FlightPlan.",
+      })
     );
 };
+
 
 // **2. Retrieve all FlightPlans**
 exports.findAll = (req, res) => {
@@ -45,16 +48,49 @@ exports.findOne = (req, res) => {
     );
 };
 
-// // **4. Retrieve FlightPlans by Student ID**
-// exports.findByStudent = (req, res) => {
-//   const id = req.params.id;
+exports.findByStudentAndSemester = async (req, res) => {
+  const { studentId, semester } = req.params;
 
-//   FlightPlan.findAll({ where: { id: id } })
-//     .then((data) => res.send(data))
-//     .catch((err) =>
-//       res.status(500).send({ message: "Error retrieving FlightPlans for id=" + id })
-//     );
-// };
+  try {
+    const plan = await FlightPlan.findOne({
+      where: {
+        studentId,
+        semester,
+      },
+      include: [
+        {
+          model: db.Experience,
+          as: "experiences",
+          where: { semester }, // Filter experiences by semester
+          required: false,
+        },
+        {
+          model: db.Task,
+          as: "tasks",
+          where: { semester }, // Filter tasks by semester
+          required: false,
+        },
+        {
+          model: db.Event,
+          as: "events",
+          where: { semester }, // Filter events by semester
+          required: false,
+        },
+      ],
+    });
+
+    if (!plan) {
+      return res.status(404).send({ message: "No flight plan found." });
+    }
+
+    res.send(plan);
+  } catch (error) {
+    console.error("Error fetching detailed flight plan:", error);
+    res.status(500).send({ message: "Server error retrieving flight plan." });
+  }
+};
+
+
 
 // **5. Update a FlightPlan**
 exports.update = (req, res) => {

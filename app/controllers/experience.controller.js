@@ -21,6 +21,7 @@ exports.create = (req, res) => {
     type: req.body.type,
     badge: req.body.badge,
     major: req.body.major,
+    semester: req.body.semester,
     cliftonStrength: req.body.cliftonStrength,
     reflectionRequired: req.body.reflectionRequired || false,
     points: req.body.points || 0,
@@ -94,9 +95,8 @@ exports.deleteAll = (req, res) => {
     );
 };
 
-// **7. Mark Experience as Complete (Student Action)**
 
-// **Student Marks Experience as Complete**
+// **7. Student Marks Experience as Complete**
 exports.markAsComplete = async (req, res) => {
   try {
     const experience = await Experience.findByPk(req.params.id);
@@ -104,24 +104,32 @@ exports.markAsComplete = async (req, res) => {
       return res.status(404).json({ message: "Experience not found" });
     }
 
+    // Update experience status
     experience.status = "Pending";
     await experience.save();
 
-    // ✅ Create StudentExperience entry
+    // Create StudentExperience entry
     await StudentExperience.create({
-      studentId: req.user.id,           // 👈 this MUST come from the authenticated user
+      studentId: req.user.id,
       experienceId: experience.id,
       status: 'pending',
-      pointsEarned: 0 // optional, will be updated on approval
+      pointsEarned: 0
     });
 
-    // ✅ Send Notification to Admin
-    await notificationController.sendNotification(
-      1, // admin ID — hardcoded or dynamically retrieved later
-      `Experience "${experience.name}" needs approval.`,
-      "experience_approval",
-      { experienceId: experience.id }
-    );
+
+    // Fetch all admins
+    const admins = await db.Admin.findAll();
+
+    // Send notification to each admin
+    for (const admin of admins) {
+      await notificationController.sendNotification(
+         //console.log("📬 Creating notification:", notificationData),
+        admin.id,
+        `Experience "${experience.name}" needs approval.`,
+        "experience_approval",
+        { experienceId: experience.id }
+      );
+    }
 
     res.json({ message: "Experience marked as Pending", experience });
   } catch (error) {
@@ -129,7 +137,6 @@ exports.markAsComplete = async (req, res) => {
     res.status(500).json({ message: "Error updating experience", error });
   }
 };
-
 
 
 // **8. Approve Experience (Admin Action)**
@@ -197,7 +204,7 @@ exports.approveExperience = async (req, res) => {
 
       if (completed.length === requiredIds.length && !alreadyEarned) {
         await StudentBadge.create({ studentId, badgeId: badge.id });
-        console.log(`🎉 Badge awarded: ${badge.name}`);
+        console.log(` Badge awarded: ${badge.name}`);
       }
     }
 

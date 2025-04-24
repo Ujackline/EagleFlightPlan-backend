@@ -25,6 +25,12 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.STRING,
           allowNull: true,
       },
+
+      semester: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      
       major: {
           type: Sequelize.STRING,
           allowNull: false,

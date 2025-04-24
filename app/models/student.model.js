@@ -27,12 +27,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
-
       grad_semester: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-
       cliftonstrengths: {
         type: Sequelize.STRING,
         allowNull: false,
