@@ -1,5 +1,5 @@
 
-  
+
 // module.exports = (app) => {
 //   const task = require("../controllers/task.controller.js");
 //   const { authenticate } = require("../authorization/authorization.js");
@@ -43,9 +43,14 @@ module.exports = (app) => {
 
   // Retrieve all task
   router.get("/", [authenticate], task.findAll);
+  
 
   // Retrieve a single task with id
   router.get("/:id", [authenticate], task.findOne);
+
+  router.put("/approve", [authenticate, isAdmin], task.approveTask);
+  
+  router.get("/pending", [authenticate, isAdmin], task.getPendingTasks);
 
   // Update a task with id
   router.put("/:id", [authenticate], task.update);
@@ -57,6 +62,8 @@ module.exports = (app) => {
 
   // Delete all task
   router.delete("/", [authenticate], task.deleteAll);
+
+    // router.get("/notifications", [authenticate, isAdmin], notification.getNotifications);
 
   // router.put("/:id/complete", [authenticate], task.completeTask); 
 

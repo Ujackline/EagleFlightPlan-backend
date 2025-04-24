@@ -22,16 +22,19 @@ const db = require("../models");
    const task = {
      category: req.body.category,
      // id: req.body.id,
+     type: req.body.type,                                 
      taskName: req.body.taskName,
      description: req.body.description,
      NumOfPoints: req.body.NumOfPoints,
-     // Rationale: req.body.Rationale,
+      Rationale: req.body.Rationale,
      grad_semester: req.body.grad_semester,
-    // scheduling_type: req.body.scheduling_type,
-    // reflection_required: req.body.reflection_required,
+     scheduling_type: req.body.scheduling_type,
+     reflection_required: req.body.reflection_required,
      //resumeId: req.body.resumeId,
+     completion_type: req.body.completion_type,           
      majors: req.body.majors, // Fixed spelling
-     CliftonStrengths: req.body.CliftonStrengths
+     CliftonStrengths: req.body.CliftonStrengths,
+     badge: req.body.badge                                
    };
  
  
@@ -46,94 +49,66 @@ const db = require("../models");
        });
      });
  };
- // continue ici
- // Retrieve all Task entries for a specific Resume
- // exports.findAll = (req, res) => {
- //   const id = req.params.id;
- //   Task.findAll({ where: { id: id } })
- //     .then(data => res.send(data))
- //     .catch(err => {
- //       console.error("Error retrieving Task:", err);
- //       res.status(500).send({
- //         message: err.message || "Error retrieving Task."
- //       });
- //     });
- // };
  
- 
- // exports.findAll = (req, res) => {
- //   const id = req.params.id || req.query.id || req.body.id;
- 
- 
- //   if (!id) {
- //     return res.status(400).send({ message: "ID parameter is missing." });
- //   }
- 
- 
- //   Task.findAll({ where: { resumeId: id } }) // Use the correct field
- //     .then(data => res.send(data))
- //     .catch(err => {
- //       console.error("Error retrieving Task:", err);
- //       res.status(500).send({
- //         message: err.message || "Error retrieving Task."
- //       });
- //     });
- // };
-//  exports.findAll = (req, res) => {
-//    Task.findAll()  // No filtering by ID
-//      .then(data => res.send(data))
-//      .catch(err => {
-//        console.error("Error retrieving tasks:", err);
-//        res.status(500).send({
-//          message: err.message || "Error retrieving tasks."
-//        });
-//      });
-//  };
-
 // exports.completeTask = async (req, res) => {
 //   try {
-//     const { studentID, id } = req.body;
+//     const { studentId, taskId } = req.body;
 
-//     // Find the student-task entry
-//    // const task = await db.Task.findByPk(taskId);
-//    // const student = await db.Student.findByPk(studentId);
+//     // Add logging to see incoming data
+//     console.log("Complete Task Request:", { studentId, taskId });
 
-//     if (!studentTask) {
-//       return res.status(404).json({ message: "Task not found for this student" });
+//     const task = await db.Task.findByPk(taskId);
+//     const student = await db.Student.findByPk(studentId);
+
+//     if (!task || !student) {
+//       return res.status(404).json({ success: false, message: "Task or student not found" });
 //     }
 
-//     // Check if the task was already completed
-//     if (studentTask.completed) {
-//       return res.status(400).json({ message: "Task already completed" });
+//     const studentTask = await db.StudentTask.findOne({ where: { studentId, taskId } });
+
+    
+//     if (studentTask) {
+//       return res.status(400).json({ success: false, message: "Task already completed" });
 //     }
 
-//     // Mark task as completed
-//     studentTask.completed = true;
 
-//     // Get the task to retrieve the points value
-//     const task = await db.Task.findByPk(id);
-//     if (!task) return res.status(404).json({ message: "Task not found" });
+//     // await db.StudentTask.create({ studentId, taskId });
+//     await db.StudentTask.create({
+//       studentId,
+//       taskId,
+//       status: 'completed',  // Assuming the task is completed when added
+//       CompletionDate: new Date(),  // Set the current date and time as the completion date
+//       approved: false, //  new field
+//     });
 
-//     // Update student’s total points
-//     const student = await Student.findByPk(studentID);
-//     if (!student) return res.status(404).json({ message: "Student not found" });
 
-//     student.totalPoints = (student.totalPoints || 0) + task.NumOfPoints; // Add points
+//     const adminUsers = await db.User.findAll({ where: { role: 'admin' } });
 
-//     // Save updates
-//     await studentTask.save();
-//     await student.save();
+//     const notifications = adminUsers.map((admin) => ({
+//       message: `Student ${student.name} has completed the task "${task.title}". Please review for approval.`,
+//       status: "unread",
+//       recipientId: admin.id,
+//       type: "task_completion", // 👈 better than "general" so you can filter
+//       taskId: task.id,
+//       studentId: student.id
 
-//     return res.status(200).json({ message: "Task completed and points added", totalPoints: student.totalPoints });
+//     }));
+
+//     await db.Notification.bulkCreate(notifications);
+
+    
+    
+
+//   res.json({ success: true, message: "Task marked completed, pending approval" });
+
+
+//     res.json({ success: true, newTotalPoints: student.points });
 //   } catch (error) {
 //     console.error("Error completing task:", error);
-//     res.status(500).json({ message: "Internal Server Error" });
+//     res.status(500).json({ success: false, message: "Server error" });
 //   }
 // };
 
-// const db = require("../models");
-
-// Make sure this function is part of your controller's exported methods
 exports.completeTask = async (req, res) => {
   try {
     const { studentId, taskId } = req.body;
@@ -150,33 +125,103 @@ exports.completeTask = async (req, res) => {
 
     const studentTask = await db.StudentTask.findOne({ where: { studentId, taskId } });
 
-    
     if (studentTask) {
       return res.status(400).json({ success: false, message: "Task already completed" });
     }
 
-    // await db.StudentTask.create({ studentId, taskId });
+    // Create the student task record
     await db.StudentTask.create({
       studentId,
       taskId,
-      status: 'completed',  // Assuming the task is completed when added
-      CompletionDate: new Date(),  // Set the current date and time as the completion date
+      status: 'completed',
+      CompletionDate: new Date(),
+      approved: false,
+    });
+
+    // Get all admin users
+    const adminUsers = await db.User.findAll({ where: { role: 'admin' } });
+    
+    if (adminUsers.length === 0) {
+      console.log("No admin users found to notify");
+    }
+
+    // Create a notification for each admin
+    for (const admin of adminUsers) {
+      console.log(`Creating notification for admin ${admin.id}`);
+      
+      // await db.Notification.create({
+      //   message: `Student ${student.name} has completed the task "${task.taskName}". Please review for approval.`,
+      //   status: "unread",
+      //   recipientId: admin.id,
+      //   type: "task_completion",
+      //   taskId: task.id,
+      //   studentId: student.id
+      // });
+
+      console.log(`Creating notification for student ${student}`);
+      await db.Notification.create({
+        message: `Student ${student.fName} ${student.lName} has completed the task "${task.taskName}". Please review for approval.`,
+        status: "unread",
+        recipientId: admin.id, // admin user ID
+        type: "task_completion", // ✅ This is where you put it!
+        taskId: task.id,
+        studentId: student.id,
+      });
+      
+    }
+
+    return res.json({ 
+      success: true, 
+      message: "Task marked completed, pending approval" 
     });
     
-    // Add logging to verify the task completion
-    console.log("Task completed for studentId:", studentId, "taskId:", taskId);
-
-    student.points = (student.points || 0) + Number(task.NumOfPoints);
-
-   //  student.points += task.NumOfPoints;
-    await student.save();
-
-    res.json({ success: true, newTotalPoints: student.points });
   } catch (error) {
     console.error("Error completing task:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+exports.approveTask = async (req, res) => {
+  try {
+    const { studentId, taskId } = req.body;
+    console.log("Approve Task Request:", { studentId, taskId });
+    
+
+    const studentTask = await db.StudentTask.findOne({ where: { studentId, taskId } });
+    if (!studentTask || studentTask.approved) return res.status(404).json({ message: "Invalid task" });
+
+    const task = await db.Task.findByPk(taskId);
+    const student = await db.Student.findByPk(studentId);
+
+    studentTask.approved = true;
+    await studentTask.save();
+
+    student.points = (student.points || 0) + Number(task.NumOfPoints);
+    await student.save();
+
+    res.json({ success: true, message: "Task approved and points awarded" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error approving task" });
+  }
+};
+
+exports.getPendingTasks = async (req, res) => {
+  try {
+    const pendingTasks = await db.StudentTask.findAll({
+      where: { approved: false },
+      include: [
+        { model: db.Student, attributes: ["id", "name"] },
+        { model: db.Task, attributes: ["id", "title", "NumOfPoints"] }
+      ]
+    });
+    res.json(pendingTasks);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch pending tasks" });
+  }
+};
+
 
 
 
@@ -196,11 +241,6 @@ exports.findAll = (req, res) => {
       }
     });
 };
-
- 
- 
- 
- 
  
  
  // Find a single Task with an id
@@ -226,7 +266,14 @@ exports.findAll = (req, res) => {
  // Update an Task by the id in the request
  exports.update = (req, res) => {
    const id = req.params.id;
+   console.log("wrong place")
  
+   if (!req.body) {
+     return res.status(400).send({
+       success: false,
+       message: "Data to update can not be empty!"
+     });
+   }
  
    // Validate request
    if (!req.body.id) {

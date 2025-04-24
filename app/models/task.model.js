@@ -26,18 +26,44 @@ module.exports = (sequelize, Sequelize) => {
     task_type: {
       type: Sequelize.STRING,
       allowNull: true,
-    },  
+    }, 
+
+    reflection_required: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+    },
+
+    scheduling_type: {
+      type: Sequelize.STRING, // e.g. one-time, semesterly
+      allowNull: true,
+    },
+    rationale: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
 
     grad_semester: {
       type: Sequelize.STRING,
       allowNull: true,
     },
 
+    completion_type: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: "confirmed", // Add this if you want to default it
+    },    
 
     CliftonStrengths: {
       type: Sequelize.STRING,
       allowNull: true,
     },
+
+    // Example: task.model.js
+    badge: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+
   
     completed: {
       type: Sequelize.BOOLEAN,
@@ -56,6 +82,10 @@ module.exports = (sequelize, Sequelize) => {
     majors: {
       type: Sequelize.STRING,
       allowNull: true,
+    },
+    approved: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
     },
 
 
