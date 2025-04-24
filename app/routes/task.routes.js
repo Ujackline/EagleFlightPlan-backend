@@ -1,5 +1,5 @@
 
-  
+
 // module.exports = (app) => {
 //   const task = require("../controllers/task.controller.js");
 //   const { authenticate } = require("../authorization/authorization.js");
@@ -45,15 +45,22 @@ module.exports = (app) => {
 
   // Retrieve all task
   router.get("/", [authenticate], task.findAll);
+  
 
   // Retrieve a single task with id
   router.get("/:id", [authenticate], task.findOne);
+
+  router.put("/approve", [authenticate, isAdmin], task.approveTask);
+  
+  router.get("/pending", [authenticate, isAdmin], task.getPendingTasks);
 
   // Update a task with id
   router.put("/:id", [authenticate, isAdmin], task.update);
 
   // Delete a task with id
   router.delete("/:id", [authenticate, isAdmin], task.delete);
+
+  router.post("/complete", task.completeTask);
 
   // Delete all task
   router.delete("/", [authenticate, isAdmin], task.deleteAll);
@@ -64,7 +71,9 @@ module.exports = (app) => {
   router.patch("/:id/reject", [authenticate, isAdmin], task.rejectTask);
 
 
-  router.put("/:id/complete", [authenticate], task.completeTask); 
+    // router.get("/notifications", [authenticate, isAdmin], notification.getNotifications);
+
+  // router.put("/:id/complete", [authenticate], task.completeTask); 
 
   app.use("/flight-plan-t9/task", router);
 };

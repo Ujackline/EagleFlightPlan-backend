@@ -36,6 +36,12 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
 
+//       points: {
+//         type: Sequelize.INTEGER,
+//         allowNull: false,
+//       }
+      
+
     points: {
       type: Sequelize.STRING,
       allowNull: true,

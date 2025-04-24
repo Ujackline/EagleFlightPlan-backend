@@ -1,4 +1,4 @@
-module.exports = (app) => {
+
   const student = require("../controllers/student.controller.js");
   const { authenticate } = require("../authorization/authorization.js");
   var router = require("express").Router();
@@ -8,6 +8,9 @@ module.exports = (app) => {
 
   // Retrieve all students
   router.get("/", [authenticate], student.findAll);
+
+     router.get("/leaderboard", student.getLeaderboard);
+
 
   // Retrieve current student
   router.get("/current", [authenticate], student.getCurrentStudent);
@@ -19,6 +22,7 @@ module.exports = (app) => {
   // Retrieve a single student with id
   router.get("/:id", [authenticate], student.findOne);
 
+
   // Update a student with id
   router.put("/:id", [authenticate], student.update);
 
@@ -27,6 +31,8 @@ module.exports = (app) => {
 
   // Delete all students
   router.delete("/", [authenticate], student.deleteAll);
+
+
 
   // Point-related routes
   router.get("/:id/points", [authenticate], student.getPoints);

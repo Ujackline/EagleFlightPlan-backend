@@ -13,8 +13,8 @@ exports.create = async (req, res) => {
     id: req.body.id,
     fName: req.body.fName,
     lName: req.body.lName,
-    email: req.body.email,
-    studentID: req.body.studentID,
+   // email: req.body.email,
+    // studentID: req.body.studentID,
     major: req.body.major,
     semester: req.body.semester,
     grad_semester: req.body.grad_semester,
@@ -49,22 +49,57 @@ exports.create = async (req, res) => {
   }
 };
 
+    flightPlanId: req.body.flightPlanId,
+     points: req.body.points,
+  };
+  
+  Student.create(student)
+    .then(data => res.status(201).json({ message: "Student profile created", data }))
+    .catch(err => res.status(500).send({ message: "Error creating student", error: err }));
+
+    // id: req.body.id,
+    // studentFirstName: req.body.studentFirstName,
+    // studentLastName: req.body.studentLastName,
+    // studentEmail: req.body.studentEmail,
+    // studentSchoolID: req.body.studentSchoolID,
+    // studentGradDate: req.body.studentGradDate, 
+    // studentMajor: req.body.studentMajor,
+    // studentCliftonStrengths: req.body.studentCliftonStrengths,
+    // studentAwards: req.body.studentAwards,
+    // studentPointsAwarded: req.body.studentPointsAwarded,
+    // studentPointsUsed: req.body.studentPointsUsed,
+    // studentPointsAvailable: req.body.studentPointsAvailable,
+    // studentBadges: req.body.studentBadges,
+
+}
+
+// exports.findAll = (req, res) => {
+//      const id = req.params.id;
+//     Student.findAll({where: {id: id}})
+//         .then((data) => {
+//         if (data) {
+//           res.send(data);
+//         } else {
+//           res.status(404).send({
+//             message: `Cannot find Student for student with id=${id}.`,
+//           });
+//         }
+//         })
+//       .catch((err) => {
+//         res.status(500).send({message:err.message ||"Error retrieving Projects for student with id=" 
+//         });
+//     });
+// };
 
 exports.findAll = (req, res) => {
-    const id = req.params.id;
-    Student.findAll({where: {id: id}})
-        .then((data) => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: `Cannot find Student for student with id=${id}.`,
-          });
-        }
-        })
-      .catch((err) => {
-        res.status(500).send({message:err.message ||"Error retrieving Projects for student with id=" 
-        });
+  Student.findAll()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving students."
+      });
     });
 };
 
@@ -113,102 +148,21 @@ exports.update = (req, res) => {
     });
 };
 
-
-exports. getPoints = async (req, res) => {
-  const { id } = req.params;
-  const student = await Student.findByPk(id);
-  if (!student) return res.status(404).json({ error: 'Student not found' });
-
-  res.json({ points: student.points });
-};
-
-exports. addPoints = async (req, res) => {
-  const { id } = req.params;
-  const { amount } = req.body;
-
-  const student = await Student.findByPk(id);
-  if (!student) return res.status(404).json({ error: 'Student not found' });
-
-  student.points += amount;
-  await student.save();
-
-  res.json({ message: 'Points added', points: student.points });
-};
-
-exports. redeemPoints = async (req, res) => {
-  const { id } = req.params;
-  const { amount } = req.body;
-
-  const student = await Student.findByPk(id);
-  if (!student) return res.status(404).json({ error: 'Student not found' });
-
-  if (student.points < amount) {
-    return res.status(400).json({ error: 'Not enough points' });
-  }
-
-  student.points -= amount;
-  await student.save();
-
-  res.json({ message: 'Points redeemed', points: student.points });
-};
-
-
-// Get current logged-in student from session/token
-exports.getCurrentStudent = (req, res) => {
-  // Check if user is authenticated
-  if (req.user) {
-    // If user data is stored in req.user from your auth middleware
-    Student.findByPk(req.user.id)
-      .then(data => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: "Current user not found in database"
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || "Error retrieving current user"
-        });
-      });
-  } else {
-    // If you're using JWT tokens stored in the request
-    const token = req.headers["x-access-token"] || req.headers.authorization;
-    
-    if (!token) {
-      return res.status(401).send({
-        message: "No authentication token provided"
-      });
-    }
-    
-    try {
-      // You'll need to implement this function based on your auth system
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      Student.findByPk(decoded.id)
-        .then(data => {
-          if (data) {
-            res.send(data);
-          } else {
-            res.status(404).send({
-              message: "Current user not found in database"
-            });
-          }
-        })
-        .catch(err => {
-          res.status(500).send({
-            message: err.message || "Error retrieving current user"
-          });
-        });
-    } catch (err) {
-      return res.status(401).send({
-        message: "Invalid or expired token"
-      });
-    }
+// controllers/studentController.js
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const students = await db.Student.findAll({
+      attributes: ['id', 'fName', 'lName', 'points'],
+      order: [['points', 'DESC']]
+    });
+    res.status(200).json(students);
+  } catch (error) {
+    console.error("❌ Error fetching leaderboard:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+
 exports.delete = (req, res) => {
   const id = req.params.id;
 
